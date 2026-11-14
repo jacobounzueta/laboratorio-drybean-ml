@@ -1,0 +1,19 @@
+{
+  "dataset": "Dry Bean Dataset",
+  "uci_id": 602,
+  "source": "https://archive.ics.uci.edu/dataset/602/dry+bean+dataset",
+  "downloaded_at_utc": "2026-11-14T03:39:07+00:00",
+  "rows": 13611,
+  "columns": 17,
+  "target_column": "Class",
+  "classes": [
+    "BARBUNYA",
+    "BOMBAY",
+    "CALI",
+    "DERMASON",
+    "HOROZ",
+    "SEKER",
+    "SIRA"
+  ],
+  "sha256": "c4e627b187fefd79ac00998be810f0608cf60697226d4f157def8d78f7bb1265"
+}

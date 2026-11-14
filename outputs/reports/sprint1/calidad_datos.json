@@ -1,0 +1,29 @@
+{
+  "rows": 13611,
+  "columns": 17,
+  "missing_total": 0,
+  "missing_by_column": {},
+  "duplicated_rows": 68,
+  "numeric_columns": 16,
+  "non_numeric_columns": [
+    "Class"
+  ],
+  "target_column": "Class",
+  "n_classes": 7,
+  "class_counts": {
+    "DERMASON": 3546,
+    "SIRA": 2636,
+    "SEKER": 2027,
+    "HOROZ": 1928,
+    "CALI": 1630,
+    "BARBUNYA": 1322,
+    "BOMBAY": 522
+  },
+  "class_balance_ratio": 6.79,
+  "rows_after_cleaning": 13543,
+  "rows_removed": 68,
+  "cleaning_actions": [
+    "drop_duplicates(): se eliminan filas idénticas completas.",
+    "index reindexado con reset_index(drop=True)."
+  ]
+}
