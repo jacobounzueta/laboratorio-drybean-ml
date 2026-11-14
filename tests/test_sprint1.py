@@ -51,6 +51,18 @@ def test_raw_metadata_tracks_download(df_raw: pd.DataFrame) -> None:
     assert len(metadata["sha256"]) == 64
 
 
+def test_raw_metadata_hash_matches_versioned_file() -> None:
+    """El hash de los metadatos debe corresponder al archivo que está en Git."""
+    import hashlib
+    import json
+
+    metadata = json.loads(config.RAW_METADATA_PATH.read_text(encoding="utf-8"))
+    actual = hashlib.sha256(config.RAW_DATASET_PATH.read_bytes()).hexdigest()
+    assert actual == metadata["sha256"], (
+        "El CSV versionado no coincide con el hash de los metadatos."
+    )
+
+
 def test_clean_data_drops_duplicates(df_raw: pd.DataFrame) -> None:
     cleaned, report = prepare.clean_data(df_raw)
 
