@@ -37,3 +37,10 @@ def test_build_class_presets_fallback() -> None:
     presets = app.build_class_presets(df, None)
     assert "Ejemplo por defecto" in presets
     assert presets["Ejemplo por defecto"]["true_class"] is None
+
+
+def test_build_bean_simulation_figure() -> None:
+    """La simulación geométrica genera una figura válida con los parámetros."""
+    fig = app.build_bean_simulation_figure(app.DEFAULT_SAMPLE)
+    assert len(fig.axes) == 1
+    assert len(fig.axes[0].patches) == 3  # caja envolvente, círculo equiv. y contorno

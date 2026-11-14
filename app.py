@@ -8,8 +8,11 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import streamlit as st
+from matplotlib.figure import Figure
+from matplotlib.patches import Circle, Polygon, Rectangle
 
 from src import config, deploy
 
@@ -140,6 +143,87 @@ def render_sidebar(metadata: dict[str, Any]) -> None:
     )
 
 
+def build_bean_simulation_figure(params: dict[str, float]) -> Figure:
+    """Genera una simulación 2D de la geometría del grano a partir de sus parámetros."""
+    major = max(float(params.get("MajorAxisLength", 200.0)), 1.0)
+    minor = max(float(params.get("MinorAxisLength", 150.0)), 1.0)
+    equiv_d = max(float(params.get("EquivDiameter", 170.0)), 1.0)
+    solidity = float(np.clip(params.get("Solidity", 0.98), 0.5, 1.0))
+    roundness = float(np.clip(params.get("Roundness", 0.85), 0.2, 1.0))
+
+    a = major / 2.0
+    b = minor / 2.0
+    theta = np.linspace(0, 2 * np.pi, 360)
+
+    # Ligera concavidad en el hilio/borde modulada por Solidity y Roundness
+    concavity = (1.0 - solidity) * 2.2
+    lobe = (1.0 - roundness) * 0.06
+    hilum = concavity * np.exp(-((theta - np.pi / 2.0) ** 2) / 0.18)
+    r_scale = 1.0 - hilum + lobe * np.cos(2.0 * theta)
+
+    x = a * r_scale * np.cos(theta)
+    y = b * r_scale * np.sin(theta)
+    coords = np.column_stack([x, y])
+
+    fig = Figure(figsize=(5.2, 4.2), dpi=130)
+    ax = fig.add_subplot(111)
+    fig.patch.set_facecolor("#fafafa")
+    ax.set_facecolor("#fafafa")
+
+    # Caja delimitadora (MajorAxisLength x MinorAxisLength)
+    bbox = Rectangle(
+        (-a, -b),
+        major,
+        minor,
+        linewidth=1.0,
+        linestyle="--",
+        edgecolor="#94a3b8",
+        facecolor="none",
+        label="Caja envolvente",
+    )
+    ax.add_patch(bbox)
+
+    # Círculo de diámetro equivalente
+    equiv_circle = Circle(
+        (0.0, 0.0),
+        radius=equiv_d / 2.0,
+        linewidth=1.1,
+        linestyle=":",
+        edgecolor="#0284c7",
+        facecolor="none",
+        label=f"Diámetro equiv. ({equiv_d:.1f} px)",
+    )
+    ax.add_patch(equiv_circle)
+
+    # Contorno simulado del grano
+    bean_poly = Polygon(
+        coords,
+        closed=True,
+        facecolor="#c68b59",
+        edgecolor="#7c471b",
+        linewidth=2.0,
+        alpha=0.72,
+        label="Contorno simulado",
+    )
+    ax.add_patch(bean_poly)
+
+    # Ejes mayor y menor
+    ax.plot([-a, a], [0, 0], color="#b91c1c", linewidth=1.4, label=f"Eje mayor ({major:.1f} px)")
+    ax.plot([0, 0], [-b, b], color="#15803d", linewidth=1.4, label=f"Eje menor ({minor:.1f} px)")
+
+    half_span = max(a, b, equiv_d / 2.0, 260.0) * 1.18
+    ax.set_xlim(-half_span, half_span)
+    ax.set_ylim(-half_span * 0.82, half_span * 0.82)
+    ax.set_aspect("equal", adjustable="box")
+    ax.grid(True, linestyle=":", linewidth=0.6, color="#cbd5e1", alpha=0.8)
+    ax.set_xlabel("px")
+    ax.set_ylabel("px")
+    ax.set_title("Silueta geométrica simulada", fontsize=11, fontweight="bold", pad=8)
+    ax.legend(loc="upper right", fontsize=7.5, framealpha=0.9)
+    fig.tight_layout()
+    return fig
+
+
 def render_single_prediction_tab(
     model: Any,
     features: list[str],
@@ -148,25 +232,27 @@ def render_single_prediction_tab(
     """Pestaña para predecir la variedad de un grano individual."""
     st.subheader("Predicción de un grano individual")
     st.write(
-        "Selecciona una muestra de ejemplo o ingresa manualmente las 16 medidas "
-        "geométricas del grano."
+        "Selecciona una muestra de ejemplo o ajusta las 16 medidas geométricas; "
+        "la simulación se actualiza en tiempo real."
     )
 
-    preset_names = list(presets.keys())
-    selected_preset = st.selectbox(
-        "Cargar valores de ejemplo",
-        options=preset_names,
-        index=0,
-    )
-    preset_data = presets[selected_preset]
-    initial_values = preset_data["features"]
-    true_class = preset_data["true_class"]
+    col_config, col_sim = st.columns([3, 2], gap="large")
 
-    with st.form("single_bean_form"):
-        cols = st.columns(4)
+    with col_config:
+        preset_names = list(presets.keys())
+        selected_preset = st.selectbox(
+            "Cargar valores de ejemplo",
+            options=preset_names,
+            index=0,
+        )
+        preset_data = presets[selected_preset]
+        initial_values = preset_data["features"]
+        true_class = preset_data["true_class"]
+
+        cols = st.columns(2)
         user_inputs: dict[str, float] = {}
         for idx, feature in enumerate(features):
-            col = cols[idx % 4]
+            col = cols[idx % 2]
             default_val = float(initial_values.get(feature, DEFAULT_SAMPLE.get(feature, 0.0)))
             is_small = feature in HIGH_PRECISION_FEATURES
             user_inputs[feature] = col.number_input(
@@ -177,7 +263,19 @@ def render_single_prediction_tab(
                 key=f"input_{selected_preset}_{feature}",
             )
 
-        submitted = st.form_submit_button("Predecir variedad", type="primary")
+        submitted = st.button("Predecir variedad", type="primary")
+
+    with col_sim:
+        st.markdown("**Simulación de parámetros**")
+        fig = build_bean_simulation_figure(user_inputs)
+        st.pyplot(fig, use_container_width=True)
+
+        sim_m1, sim_m2 = st.columns(2)
+        sim_m1.metric("Area", f"{user_inputs.get('Area', 0):.0f} px²")
+        sim_m2.metric("AspectRatio", f"{user_inputs.get('AspectRatio', 0):.3f}")
+        sim_m3, sim_m4 = st.columns(2)
+        sim_m3.metric("Roundness", f"{user_inputs.get('Roundness', 0):.4f}")
+        sim_m4.metric("Solidity", f"{user_inputs.get('Solidity', 0):.4f}")
 
     if submitted:
         try:
