@@ -1,0 +1,11 @@
+{
+  "accuracy_recalculada": 0.919528,
+  "accuracy_guardada": 0.9195275009228497,
+  "accuracy_delta": 0.0,
+  "f1_macro_recalculado": 0.931461,
+  "f1_macro_guardado": 0.9314609520761044,
+  "f1_macro_delta": 0.0,
+  "features_coinciden": true,
+  "clases_coinciden": true,
+  "verificacion_ok": true
+}

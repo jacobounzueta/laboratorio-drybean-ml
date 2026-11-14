@@ -1,0 +1,45 @@
+{
+  "artifact": "modelo_final_drybean.joblib",
+  "saved_at_utc": "2026-11-14T04:16:52+00:00",
+  "sklearn_version": "1.9.1",
+  "random_state": 42,
+  "selected_model": "HistGradientBoosting",
+  "selection_metric": "cv_f1_macro_mean",
+  "decision_rationale": "HistGradientBoosting supera a Logistic Regression por 0.0069 de cv_f1_macro_mean, por lo que pasa a la fase de despliegue.",
+  "metrics": {
+    "accuracy": 0.9195275009228497,
+    "f1_macro": 0.9314609520761044,
+    "cv_f1_macro_mean": 0.9428986627760587,
+    "cv_f1_macro_std": 0.0032057239012787176
+  },
+  "features": [
+    "Area",
+    "Perimeter",
+    "MajorAxisLength",
+    "MinorAxisLength",
+    "AspectRatio",
+    "Eccentricity",
+    "ConvexArea",
+    "EquivDiameter",
+    "Extent",
+    "Solidity",
+    "Roundness",
+    "Compactness",
+    "ShapeFactor1",
+    "ShapeFactor2",
+    "ShapeFactor3",
+    "ShapeFactor4"
+  ],
+  "classes": [
+    "BARBUNYA",
+    "BOMBAY",
+    "CALI",
+    "DERMASON",
+    "HOROZ",
+    "SEKER",
+    "SIRA"
+  ],
+  "train_rows": 10834,
+  "test_rows": 2709,
+  "model_type": "HistGradientBoostingClassifier"
+}
