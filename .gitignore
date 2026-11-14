@@ -26,3 +26,6 @@ outputs/models/*
 Thumbs.db
 .vscode/
 .idea/
+
+# Scratch local para pruebas en vivo (no forma parte de la entrega)
+probar_modelo.py
