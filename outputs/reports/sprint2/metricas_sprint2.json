@@ -11,7 +11,7 @@
         "f1_weighted": 0.9196670651405702,
         "precision_macro": 0.9310853526888828,
         "recall_macro": 0.9303201599975058,
-        "train_seconds": 0.103,
+        "train_seconds": 0.106,
         "predict_seconds": 0.001
       },
       "cross_validation": {
@@ -25,7 +25,7 @@
         ],
         "mean": 0.9359800075280026,
         "std": 0.00307425815890158,
-        "seconds": 0.36
+        "seconds": 0.37
       },
       "per_class": {
         "BARBUNYA": {
@@ -112,8 +112,8 @@
         "f1_weighted": 0.9195068744012597,
         "precision_macro": 0.9311719219150473,
         "recall_macro": 0.9309804133206397,
-        "train_seconds": 0.364,
-        "predict_seconds": 0.038
+        "train_seconds": 0.366,
+        "predict_seconds": 0.037
       },
       "cross_validation": {
         "cv": 5,
@@ -126,7 +126,7 @@
         ],
         "mean": 0.9351696983563758,
         "std": 0.0015581095634269885,
-        "seconds": 1.98
+        "seconds": 1.64
       },
       "per_class": {
         "BARBUNYA": {
@@ -213,7 +213,7 @@
         "f1_weighted": 0.9195109311465418,
         "precision_macro": 0.9323312350262005,
         "recall_macro": 0.9307024772726643,
-        "train_seconds": 0.432,
+        "train_seconds": 0.431,
         "predict_seconds": 0.006
       },
       "cross_validation": {
@@ -227,7 +227,7 @@
         ],
         "mean": 0.9428986627760587,
         "std": 0.0032057239012787176,
-        "seconds": 4.15
+        "seconds": 4.05
       },
       "per_class": {
         "BARBUNYA": {
@@ -315,7 +315,7 @@
       "balanced_accuracy": 0.9303,
       "precision_macro": 0.9311,
       "recall_macro": 0.9303,
-      "train_seconds": 0.103,
+      "train_seconds": 0.106,
       "cv_f1_macro_mean": 0.936,
       "cv_f1_macro_std": 0.0031
     },
@@ -326,7 +326,7 @@
       "balanced_accuracy": 0.931,
       "precision_macro": 0.9312,
       "recall_macro": 0.931,
-      "train_seconds": 0.364,
+      "train_seconds": 0.366,
       "cv_f1_macro_mean": 0.9352,
       "cv_f1_macro_std": 0.0016
     },
@@ -337,7 +337,7 @@
       "balanced_accuracy": 0.9307,
       "precision_macro": 0.9323,
       "recall_macro": 0.9307,
-      "train_seconds": 0.432,
+      "train_seconds": 0.431,
       "cv_f1_macro_mean": 0.9429,
       "cv_f1_macro_std": 0.0032
     }

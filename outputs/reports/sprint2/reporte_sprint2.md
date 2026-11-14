@@ -29,9 +29,9 @@ no filtrar información del conjunto de prueba.
 
 | modelo | accuracy | f1_macro | f1_weighted | balanced_accuracy | precision_macro | recall_macro | train_seconds |
 |---|---|---|---|---|---|---|---|
-| Logistic Regression | 0.919 | 0.931 | 0.920 | 0.930 | 0.931 | 0.930 | 0.103 |
-| Random Forest | 0.919 | 0.931 | 0.919 | 0.931 | 0.931 | 0.931 | 0.364 |
-| HistGradientBoosting | 0.919 | 0.931 | 0.919 | 0.931 | 0.932 | 0.931 | 0.432 |
+| Logistic Regression | 0.919 | 0.931 | 0.920 | 0.930 | 0.931 | 0.930 | 0.106 |
+| Random Forest | 0.919 | 0.931 | 0.919 | 0.931 | 0.931 | 0.931 | 0.366 |
+| HistGradientBoosting | 0.919 | 0.931 | 0.919 | 0.931 | 0.932 | 0.931 | 0.431 |
 
 ### Comparación de métricas en test
 
@@ -43,9 +43,9 @@ La coincidencia media entre las predicciones de los modelos es **96.05%**: compa
 
 | modelo | F1 macro medio | Desv. estándar | Folds |
 |---|---|---|---|
-| Logistic Regression | 0.9360 | 0.003100 | 0.9378 · 0.9337 · 0.9336 · 0.9336 · 0.9412 |
-| Random Forest | 0.9352 | 0.001600 | 0.9373 · 0.9337 · 0.9344 · 0.9337 · 0.9368 |
-| HistGradientBoosting | 0.9429 | 0.003200 | 0.9430 · 0.9457 · 0.9429 · 0.9370 · 0.9459 |
+| Logistic Regression | 0.9360 | 0.0031 | 0.9378 · 0.9337 · 0.9336 · 0.9336 · 0.9412 |
+| Random Forest | 0.9352 | 0.0016 | 0.9373 · 0.9337 · 0.9344 · 0.9337 · 0.9368 |
+| HistGradientBoosting | 0.9429 | 0.0032 | 0.9430 · 0.9457 · 0.9429 · 0.9370 · 0.9459 |
 
 ### F1 macro con validación cruzada
 

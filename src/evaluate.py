@@ -48,9 +48,10 @@ def plot_model_comparison(comparison: pd.DataFrame, path: Path) -> Path:
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.set_ylim(0, 1.12)
+    values_all = comparison[metrics].astype(float).to_numpy().ravel()
+    ax.set_ylim(values_all.min() - 0.03, values_all.max() + 0.035)
     ax.set_ylabel("Puntaje")
-    ax.set_title("Comparación de modelos - conjunto de prueba")
+    ax.set_title("Comparación de modelos - test (eje truncado para ver diferencias)")
     ax.legend(loc="lower right", fontsize=8)
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
