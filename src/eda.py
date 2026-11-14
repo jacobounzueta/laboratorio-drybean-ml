@@ -20,17 +20,19 @@ import pandas as pd
 from src import config
 
 
-def _format_value(value, float_format: str = "{:.3f}") -> str:
+def _format_value(value, float_format: str = "{:.3f}", adaptive: bool = True) -> str:
     """Formatea valores conservando la precisión de variables pequeñas."""
     if isinstance(value, (float, np.floating)):
         value = float(value)
-        if value != 0 and abs(value) < 0.01:
+        if adaptive and value != 0 and abs(value) < 0.01:
             return f"{value:.6f}"
         return float_format.format(value)
     return str(value)
 
 
-def dataframe_to_markdown(df: pd.DataFrame, float_format: str = "{:.3f}") -> str:
+def dataframe_to_markdown(
+    df: pd.DataFrame, float_format: str = "{:.3f}", adaptive: bool = True
+) -> str:
     """Convierte un dataframe pequeño a tabla Markdown sin depender de tabulate."""
     display = df.astype(object)
     index_name = display.index.name or ""
@@ -38,7 +40,7 @@ def dataframe_to_markdown(df: pd.DataFrame, float_format: str = "{:.3f}") -> str
     separator = "|" + "---|" * (len(display.columns) + 1)
     lines = [header, separator]
     for label, row in zip(display.index, display.to_numpy(dtype=object)):
-        values = [_format_value(value, float_format) for value in row]
+        values = [_format_value(value, float_format, adaptive) for value in row]
         lines.append(f"| {label} | " + " | ".join(values) + " |")
     return "\n".join(lines)
 

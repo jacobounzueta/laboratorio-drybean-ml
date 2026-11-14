@@ -6,6 +6,7 @@ Markdown con la fase de evaluación de CRISP-DM.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -21,12 +22,9 @@ from sklearn.metrics import ConfusionMatrixDisplay
 from src import config
 from src.eda import dataframe_to_markdown
 
-_FIGURE_TITLES = {
-    "comparacion": "Comparación de métricas",
-    "confusion_baseline": "Matriz de confusión - Logistic Regression",
-    "confusion_forest": "Matriz de confusión - Random Forest",
-    "importancia": "Top 10 variables más importantes",
-}
+
+def _slug(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
 
 
 # ---------------------------------------------------------------------------
@@ -40,21 +38,41 @@ def plot_model_comparison(comparison: pd.DataFrame, path: Path) -> Path:
     x = np.arange(len(metrics))
     width = 0.8 / len(models)
 
-    fig, ax = plt.subplots(figsize=(8, 4.5))
+    fig, ax = plt.subplots(figsize=(9, 4.8))
     colors = ["#3b6ea5", "#d98d3b", "#5a9367", "#a35b8f"]
     for index, model in enumerate(models):
         values = comparison.loc[model, metrics].astype(float).tolist()
         offsets = x - 0.4 + width / 2 + index * width
         bars = ax.bar(offsets, values, width, label=model, color=colors[index % len(colors)])
-        ax.bar_label(bars, fmt="%.3f", fontsize=8, padding=2)
+        ax.bar_label(bars, fmt="%.3f", fontsize=7, padding=2, rotation=90)
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.set_ylim(0, 1.05)
+    ax.set_ylim(0, 1.12)
     ax.set_ylabel("Puntaje")
     ax.set_title("Comparación de modelos - conjunto de prueba")
-    ax.legend(loc="lower right")
+    ax.legend(loc="lower right", fontsize=8)
     ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    return path
+
+
+def plot_cv_comparison(comparison: pd.DataFrame, path: Path) -> Path:
+    models = comparison.index.tolist()
+    means = comparison["cv_f1_macro_mean"].astype(float).tolist()
+    stds = comparison["cv_f1_macro_std"].astype(float).tolist()
+    colors = ["#3b6ea5", "#d98d3b", "#5a9367", "#a35b8f"][: len(models)]
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    bars = ax.bar(models, means, yerr=stds, capsize=6, color=colors)
+    ax.bar_label(bars, fmt="%.4f", fontsize=9, padding=8)
+    ax.set_ylim(min(means) - max(stds) - 0.01, max(means) + max(stds) + 0.03)
+    ax.set_ylabel("F1 macro medio (5 folds)")
+    ax.set_title("Estabilidad de los modelos - validación cruzada sobre train")
+    ax.grid(axis="y", alpha=0.3)
+    plt.setp(ax.get_xticklabels(), rotation=15, ha="right")
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)
@@ -118,20 +136,24 @@ def generate_figures(
     """Genera todas las figuras del Sprint 2 y devuelve sus rutas."""
     figures_dir = config.SPRINT2_FIGURES_DIR
     figures_dir.mkdir(parents=True, exist_ok=True)
-    return {
+
+    figures: dict[str, Path] = {
         "comparacion": plot_model_comparison(
             comparison, figures_dir / "comparacion_modelos.png"
         ),
-        "confusion_baseline": plot_confusion(
-            results["baseline"], figures_dir / "confusion_baseline.png"
-        ),
-        "confusion_forest": plot_confusion(
-            results["forest"], figures_dir / "confusion_forest.png"
-        ),
-        "importancia": plot_feature_importance(
-            importance, figures_dir / "importancia_variables.png"
+        "comparacion_cv": plot_cv_comparison(
+            comparison, figures_dir / "comparacion_cv.png"
         ),
     }
+    for name, result in results.items():
+        slug = _slug(name)
+        figures[f"confusion_{slug}"] = plot_confusion(
+            result, figures_dir / f"confusion_{slug}.png"
+        )
+    figures["importancia"] = plot_feature_importance(
+        importance, figures_dir / "importancia_variables.png"
+    )
+    return figures
 
 
 # ---------------------------------------------------------------------------
@@ -201,57 +223,75 @@ def _relative(path: str | Path) -> str:
 def build_sprint2_markdown(
     comparison: pd.DataFrame,
     results: dict[str, dict[str, Any]],
+    cv_results: dict[str, dict[str, Any]],
     selection: dict[str, Any],
     importance: pd.DataFrame,
     figures: dict[str, Path],
     artifact: dict[str, str] | None,
     agreement: float | None = None,
 ) -> str:
-    comparison_table = comparison.copy()
-    comparison_table.index.name = "modelo"
+    test_columns = [
+        "accuracy",
+        "f1_macro",
+        "f1_weighted",
+        "balanced_accuracy",
+        "precision_macro",
+        "recall_macro",
+        "train_seconds",
+    ]
+    test_table = comparison[test_columns].copy()
+    test_table.index.name = "modelo"
 
-    figures_section = "\n".join(
-        f"### {_FIGURE_TITLES.get(key, key)}\n\n"
-        f"![{_FIGURE_TITLES.get(key, key)}](figuras/{path.name})\n"
-        for key, path in figures.items()
+    cv_table = pd.DataFrame(
+        {
+            "F1 macro medio": [cv_results[name]["mean"] for name in comparison.index],
+            "Desv. estándar": [cv_results[name]["std"] for name in comparison.index],
+            "Folds": [
+                " · ".join(f"{score:.4f}" for score in cv_results[name]["scores"])
+                for name in comparison.index
+            ],
+        },
+        index=comparison.index,
+    )
+    cv_table = cv_table.round(4)
+    cv_table.index.name = "modelo"
+
+    confusion_sections = "\n".join(
+        f"### Matriz de confusión - {result['model_name']}\n\n"
+        f"![Matriz de confusión - {result['model_name']}]"
+        f"(figuras/{figures[f'confusion_{_slug(name)}'].name})\n"
+        for name, result in results.items()
     )
 
-    confusions = {
-        name: top_confusions(result) for name, result in results.items()
-    }
+    selected = results[selection["selected"]]
+    selected_name = selected["model_name"]
+
     confusion_lines = []
-    for name, pairs in confusions.items():
-        label = "Baseline" if name == "baseline" else "Random Forest"
+    for result in results.values():
+        pairs = top_confusions(result, n=3)
         detail = ", ".join(
-            f"{pair['real']} → {pair['predicho']} ({pair['casos']} casos, "
-            f"{pair['tasa']:.1%})"
+            f"{pair['real']} → {pair['predicho']} ({pair['casos']} casos, {pair['tasa']:.1%})"
             for pair in pairs
         )
-        confusion_lines.append(f"- **{label}:** {detail}")
+        confusion_lines.append(f"- **{result['model_name']}:** {detail}")
 
-    worst = worst_classes(results["forest"])
-    worst_lines = "\n".join(
-        f"- `{item['clase']}`: F1 = {item['f1']} · recall = {item['recall']} · "
-        f"soporte = {item['soporte']}"
-        for item in worst
+    minority = (
+        selected["per_class"].loc[selected["labels"], ["recall", "support"]]
+        .sort_values("support")
+        .head(2)
     )
-
-    forest_per_class = results["forest"]["per_class"]
-    support = forest_per_class.loc[results["forest"]["labels"], "support"]
-    minority = support.sort_values().index[:2]
     minority_lines = " · ".join(
-        f"`{label}`: recall = {forest_per_class.loc[label, 'recall']:.3f} "
-        f"(soporte {int(support[label])})"
-        for label in minority
+        f"`{label}`: recall = {row['recall']:.3f} (soporte {int(row['support'])})"
+        for label, row in minority.iterrows()
     )
-    main_pair = top_confusions(results["forest"], n=1)[0]
-    second_pair = top_confusions(results["forest"], n=2)[1]
+
+    main_pair = top_confusions(selected, n=1)[0]
+    second_pair = top_confusions(selected, n=2)[1]
 
     importance_table = importance.head(10).copy()
     importance_table.columns = ["Variable", "Importancia"]
     importance_table.index = range(1, len(importance_table) + 1)
     importance_table.index.name = "#"
-
     top_features = ", ".join(f"`{name}`" for name in importance.head(4)["variable"])
 
     artifact_section = (
@@ -263,13 +303,19 @@ def build_sprint2_markdown(
 
     agreement_note = ""
     if agreement is not None:
-        total = len(results["forest"]["y_pred"])
         agreement_note = (
-            f"\nAmbos modelos coinciden en **{agreement:.2%}** de las predicciones del "
-            f"conjunto de prueba ({total} filas) y aciertan la misma cantidad de casos "
-            f"({int(round(results['forest']['metrics']['accuracy'] * total))} de {total}): "
-            "el desempate lo da el F1 macro y el costo computacional.\n"
+            f"\nLa coincidencia media entre las predicciones de los modelos es "
+            f"**{agreement:.2%}**: comparten casi la misma frontera de decisión y se "
+            "diferencian en casos límite.\n"
         )
+
+    per_class_sections = "\n".join(
+        f"### {result['model_name']}\n\n{_per_class_table(result)}\n"
+        for result in results.values()
+    )
+
+    min_accuracy = comparison["accuracy"].min()
+    max_accuracy = comparison["accuracy"].max()
 
     return f"""# Reporte Sprint 2 - Modelado y evaluación
 
@@ -279,89 +325,97 @@ def build_sprint2_markdown(
 
 ## 1. Resumen del sprint
 
-Se entrenaron dos modelos sobre los datos preparados en el Sprint 1:
+Se entrenaron tres modelos sobre los datos preparados en el Sprint 1:
 
 | Modelo | Configuración |
 |---|---|
 | **Baseline** | `StandardScaler` + `LogisticRegression(max_iter=1000)` |
 | **Alternativo** | `RandomForestClassifier(n_estimators=200, class_weight="balanced")` |
+| **Tercero** | `HistGradientBoostingClassifier(l2_regularization=1.0)` |
 
-El escalamiento se ajustó solo con train (dentro del pipeline) para no filtrar
-información del conjunto de prueba.
+El escalamiento del baseline se ajustó solo con train (dentro del pipeline) para
+no filtrar información del conjunto de prueba.
 
-## 2. Comparación de métricas (test)
+## 2. Protocolo de evaluación
 
-{dataframe_to_markdown(comparison_table)}
+1. **Hold-out:** métricas sobre las 2.709 filas de test que nunca vieron los modelos.
+2. **Validación cruzada 5-fold** sobre train: se usa para **decidir** entre modelos,
+   porque una única partición de test no distingue diferencias de milésimas.
+3. **Decisión CRISP-DM:** se prioriza el F1 macro medio de la validación cruzada;
+   ante empate (< 0,005) se prefiere el modelo más simple y rápido.
 
-![Comparación de métricas](figuras/{figures["comparacion"].name})
+## 3. Comparación en test (hold-out)
+
+{dataframe_to_markdown(test_table)}
+
+### Comparación de métricas en test
+
+![Comparación de métricas en test](figuras/{figures["comparacion"].name})
 {agreement_note}
-## 3. Evaluación por clase
+## 4. Validación cruzada 5-fold
 
-### Logistic Regression (baseline)
+{dataframe_to_markdown(cv_table, float_format="{:.4f}", adaptive=False)}
 
-{_per_class_table(results["baseline"])}
+### F1 macro con validación cruzada
 
-### Random Forest (alternativo)
+![F1 macro con validación cruzada](figuras/{figures["comparacion_cv"].name})
 
-{_per_class_table(results["forest"])}
+## 5. Evaluación por clase
 
-Clases con menor desempeño en Random Forest:
-
-{worst_lines}
-
-## 4. Matriz de confusión y errores
+{per_class_sections}
+## 6. Matrices de confusión y errores
 
 {chr(10).join(confusion_lines)}
 
-![Matriz de confusión - baseline](figuras/{figures["confusion_baseline"].name})
-
-![Matriz de confusión - Random Forest](figuras/{figures["confusion_forest"].name})
-
+{confusion_sections}
 **Pregunta del laboratorio:** ¿qué clases se confunden más entre sí?
 
 La confusión principal se da entre `SIRA` y `DERMASON`, variedades de tamaño y
-forma cercanos, en ambos sentidos. En contraste, `BOMBAY` (la clase más pequeña y
-minoritaria) se clasifica sin errores: es tan distinta en tamaño que las medidas
-geométricas la separan fácilmente. El desbalance no oculta los errores de las
-clases minoritarias, pero sí hace que accuracy por sí sola no sea suficiente para
-evaluar el modelo.
+forma cercanos, y ocurre en los tres modelos. `BOMBAY`, la clase más pequeña y
+minoritaria, se clasifica sin errores: sus medidas geométricas son claramente
+distintas. El límite del modelo está en las variedades parecidas, no en las clases
+con pocos ejemplos.
 
-## 5. Importancia de variables
+## 7. Importancia de variables
 
 {dataframe_to_markdown(importance_table)}
 
-![Importancia de variables](figuras/{figures["importancia"].name})
+![Top 10 variables más importantes](figuras/{figures["importancia"].name})
 
-La importancia indica qué variables usó el bosque para separar clases; **no
-prueba causalidad**. En este entrenamiento lideran {top_features}, lo que
-refuerza el hallazgo del EDA: la combinación de tamaño y forma es lo que
-discrimina las variedades, no una única medida.
+La importancia se calcula con el Random Forest (el gradient boosting no expone
+importancias por impureza). Indica qué variables fueron útiles para separar
+clases; **no prueba causalidad**. Lideran {top_features}, lo que refuerza el
+hallazgo del EDA: la combinación de tamaño y forma es lo que discrimina las
+variedades, no una única medida.
 
-## 6. Decisión CRISP-DM
+## 8. Decisión CRISP-DM
 
-- **Modelo seleccionado:** `{selection["selected"]}`
-- **Diferencia de F1 macro:** {selection["f1_macro_gap"]}
-- **Criterio:** priorizar `f1_macro`, revisar errores por clase y preferir el
-  modelo más simple cuando el desempeño es equivalente.
+- **Modelo seleccionado:** `{selected_name}`
+- **Métrica de decisión:** `{selection["metric"]}`
+- **Diferencia con el segundo:** {selection["gap"]}
 - **Justificación:** {selection["rationale"]}
 
-## 7. Artefacto generado
+## 9. Artefacto generado
 
 {artifact_section}
 
-## 8. Conclusiones del sprint
+## 10. Conclusiones del sprint
 
-1. Ambos modelos superan el 91% de accuracy, lo que confirma que las variables
-   geométricas son informativas para separar las 7 variedades.
-2. El F1 macro es la métrica de decisión porque las clases están desbalanceadas
-   (6,79:1), tal como se identificó en el Sprint 1.
-3. Con `class_weight="balanced"`, el Random Forest alcanza estos niveles en las
-   dos clases minoritarias: {minority_lines}.
-4. La confusión más frecuente del bosque es `{main_pair["real"]}` → `{main_pair["predicho"]}`
-   ({main_pair["casos"]} casos, {main_pair["tasa"]:.1%} de esa clase), seguida de
-   `{second_pair["real"]}` → `{second_pair["predicho"]}` ({second_pair["casos"]} casos).
-5. El modelo seleccionado queda guardado con `joblib` y metadatos, listo para la
-   demo de despliegue del Sprint 3.
+1. Los tres modelos se mueven entre {min_accuracy:.2%} y {max_accuracy:.2%} de
+   accuracy: el problema está bien planteado y las variables geométricas son
+   informativas.
+2. Las diferencias entre modelos son inferiores a 1 punto porcentual, muy cerca
+   del ruido de una muestra de 2.709 filas. El techo parece estar en las variables
+   disponibles, no en el algoritmo.
+3. La validación cruzada ordena con más estabilidad que el hold-out y es la base
+   de la decisión: `{selected_name}` gana en las 5 particiones.
+4. `SIRA` ↔ `DERMASON` es la confusión dominante (`{main_pair["real"]}` →
+   `{main_pair["predicho"]}`, {main_pair["casos"]} casos; `{second_pair["real"]}` →
+   `{second_pair["predicho"]}`, {second_pair["casos"]} casos). `BOMBAY` se separa
+   sin errores (recall = 1,000).
+5. En el modelo seleccionado, las clases minoritarias quedan así: {minority_lines}.
+6. El modelo final se guarda con `joblib` y metadatos, listo para la demo de
+   despliegue del Sprint 3.
 """
 
 

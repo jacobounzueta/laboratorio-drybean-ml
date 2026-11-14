@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.base import BaseEstimator
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -29,6 +29,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
+from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -36,6 +37,9 @@ from src import config
 
 BASELINE_NAME = "Logistic Regression"
 FOREST_NAME = "Random Forest"
+HGB_NAME = "HistGradientBoosting"
+CV_FOLDS = 5
+CV_METRIC_COLUMN = "cv_f1_macro_mean"
 
 
 # ---------------------------------------------------------------------------
@@ -69,6 +73,48 @@ def build_forest_model() -> RandomForestClassifier:
         class_weight="balanced",
         n_jobs=-1,
     )
+
+
+def build_hgb_model() -> HistGradientBoostingClassifier:
+    """Tercer modelo: gradient boosting sobre histogramas.
+
+    Configuración elegida con validación cruzada 5-fold sobre train: la
+    regularización L2 mejora el F1 macro medio (0,9429) frente al modelo por
+    defecto (0,9419) y frente a `max_leaf_nodes=63` (0,9427).
+    """
+    return HistGradientBoostingClassifier(
+        learning_rate=0.1,
+        max_iter=100,
+        l2_regularization=1.0,
+        random_state=config.RANDOM_STATE,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Validación cruzada
+# ---------------------------------------------------------------------------
+def cross_validate_model(
+    model: BaseEstimator,
+    X: pd.DataFrame,
+    y: pd.Series,
+    cv: int = CV_FOLDS,
+) -> dict[str, Any]:
+    """F1 macro con validación cruzada estratificada sobre el conjunto de train.
+
+    Se usa para decidir entre modelos: el conjunto de prueba (2.709 filas) es
+    demasiado pequeño para distinguir diferencias de milésimas.
+    """
+    start = perf_counter()
+    scores = cross_val_score(
+        model, X, y, cv=cv, scoring="f1_macro", n_jobs=1
+    )
+    return {
+        "cv": cv,
+        "scores": [round(float(score), 4) for score in scores],
+        "mean": float(scores.mean()),
+        "std": float(scores.std()),
+        "seconds": round(perf_counter() - start, 2),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +176,10 @@ def evaluate_model(
     }
 
 
-def build_comparison_table(results: dict[str, dict[str, Any]]) -> pd.DataFrame:
+def build_comparison_table(
+    results: dict[str, dict[str, Any]],
+    cv_results: dict[str, dict[str, Any]] | None = None,
+) -> pd.DataFrame:
     """Tabla comparativa con las métricas clave de cada modelo."""
     columns = {
         "accuracy": "accuracy",
@@ -146,42 +195,60 @@ def build_comparison_table(results: dict[str, dict[str, Any]]) -> pd.DataFrame:
         for name, result in results.items()
     }
     comparison = pd.DataFrame.from_dict(rows, orient="index")
+
+    if cv_results:
+        comparison["cv_f1_macro_mean"] = [
+            cv_results[name]["mean"] for name in comparison.index
+        ]
+        comparison["cv_f1_macro_std"] = [
+            cv_results[name]["std"] for name in comparison.index
+        ]
+
     comparison.index.name = "modelo"
     return comparison.round(4)
 
 
 def select_best_model(
-    comparison: pd.DataFrame, tolerance: float = 0.005
+    comparison: pd.DataFrame,
+    tolerance: float = 0.005,
+    metric: str = CV_METRIC_COLUMN,
 ) -> dict[str, Any]:
-    """Decisión CRISP-DM: priorizar F1 macro y preferir el modelo más simple.
+    """Decisión CRISP-DM sobre qué modelo pasa a despliegue.
 
-    Si la diferencia de F1 macro es menor que `tolerance`, se elige el modelo
-    con menor tiempo de entrenamiento (normalmente el baseline).
+    Prioriza el F1 macro medio de la validación cruzada (más estable que una
+    única partición de test). Si la diferencia es menor que `tolerance`, se
+    prefiere el modelo más rápido de entrenar, es decir, el más simple.
     """
-    ranking = comparison.sort_values("f1_macro", ascending=False)
+    if metric not in comparison.columns:
+        metric = "f1_macro"
+
+    ranking = comparison.sort_values(metric, ascending=False)
     best_name = ranking.index[0]
     runner_up = ranking.index[1]
-    gap = float(ranking.loc[best_name, "f1_macro"] - ranking.loc[runner_up, "f1_macro"])
+    gap = float(ranking.loc[best_name, metric] - ranking.loc[runner_up, metric])
 
     if gap < tolerance:
         chosen = ranking.loc[[best_name, runner_up]].sort_values("train_seconds").index[0]
         rationale = (
-            f"La diferencia de F1 macro entre {best_name} y {runner_up} es {gap:.4f} "
+            f"La diferencia de {metric} entre {best_name} y {runner_up} es {gap:.4f} "
             f"(< {tolerance}), por lo que se prefiere el modelo mas simple y rapido: {chosen}."
         )
     else:
         chosen = best_name
         rationale = (
-            f"{best_name} supera a {runner_up} por {gap:.4f} de F1 macro, "
+            f"{best_name} supera a {runner_up} por {gap:.4f} de {metric}, "
             "por lo que pasa a la fase de despliegue."
         )
 
     return {
         "selected": chosen,
+        "metric": metric,
+        "gap": round(gap, 4),
         "f1_macro_gap": round(gap, 4),
         "tolerance": tolerance,
         "rationale": rationale,
-        "ranking": ranking["f1_macro"].round(4).to_dict(),
+        "ranking": ranking[metric].round(4).to_dict(),
+        "test_f1_macro_ranking": ranking["f1_macro"].round(4).to_dict(),
     }
 
 
