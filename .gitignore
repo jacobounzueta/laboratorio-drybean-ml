@@ -1,0 +1,26 @@
+# Entorno virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Datos derivados (el dataset original SÍ se versiona en data/raw)
+data/processed/*
+!data/processed/.gitkeep
+
+# Artefactos de modelos
+outputs/models/*
+!outputs/models/.gitkeep
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

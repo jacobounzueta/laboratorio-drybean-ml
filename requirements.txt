@@ -1,0 +1,11 @@
+# Dependencias del Laboratorio de Machine Learning - Dry Bean Dataset
+# Instalación: pip install -r requirements.txt
+pandas==3.1.1
+numpy>=2.0
+matplotlib==3.10.9
+scikit-learn==1.9.1
+ucimlrepo>=0.0.7
+joblib==1.5.3
+openpyxl>=3.1
+ipykernel>=6.29
+pytest>=8.0
