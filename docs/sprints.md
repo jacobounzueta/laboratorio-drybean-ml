@@ -182,7 +182,8 @@ documentado, con el ciclo CRISP-DM cerrado.
    un demo perfecto ocultaría el riesgo principal del modelo.
 3. Se documenta la limitación de las 16 variables y la confusión `SIRA` ↔
    `DERMASON` como advertencia operativa.
-4. Se cierra el proyecto con la entrega de los tres PRs mergeados a `main`.
+4. Se cierra el proyecto con los tres PRs encadenados hacia `main`: cada sprint
+   queda en su rama y con su revisión asociada.
 
 **Feedback recibido**
 
