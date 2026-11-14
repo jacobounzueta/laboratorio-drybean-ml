@@ -15,9 +15,11 @@ __pycache__/
 data/processed/*
 !data/processed/.gitkeep
 
-# Artefactos de modelos
+# Artefactos de modelos: se versiona solo el modelo final del Sprint 2
 outputs/models/*
 !outputs/models/.gitkeep
+!outputs/models/modelo_final_drybean.joblib
+!outputs/models/modelo_final_drybean.metadata.json
 
 # Sistema operativo / editores
 .DS_Store
