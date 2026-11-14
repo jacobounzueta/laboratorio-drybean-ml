@@ -9,7 +9,7 @@ profesionales de ciencia de datos.
 | **Equipo** | Jacobo Unzueta y Rommel Prieto |
 | **Programa** | Maestría en IA y Ciencia de Datos - Universidad Autónoma de Occidente |
 | **Metodologías** | CRISP-DM · TDSP · Scrum ML |
-| **Estado** | Sprint 1 finalizado · Sprint 2 pendiente |
+| **Estado** | Sprint 1 y 2 finalizados · Sprint 3 en curso |
 
 ---
 
@@ -34,17 +34,22 @@ laboratorio_drybean_ml/
 │   ├── raw/                 # dataset original sin modificar (versionado)
 │   └── processed/           # X_train, X_test, y_train, y_test (generados)
 ├── notebooks/
-│   └── 01_laboratorio_drybean.ipynb
+│   ├── 01_laboratorio_drybean.ipynb
+│   └── 02_sprint2_modelado.ipynb
 ├── outputs/
-│   ├── models/              # modelos entrenados (.joblib)
+│   ├── models/              # modelo_final_drybean.joblib + metadatos
 │   └── reports/
-│       └── sprint1/         # reporte, JSON de calidad y figuras
+│       ├── sprint1/         # reporte, JSON de calidad y figuras
+│       └── sprint2/         # reporte, métricas, predicciones y figuras
 ├── src/                     # código reutilizable
 │   ├── config.py            # rutas, semilla y parámetros
 │   ├── data.py              # descarga y caché del dataset
 │   ├── prepare.py           # calidad, limpieza, split y pipeline
 │   ├── eda.py               # figuras y reporte exploratorio
-│   └── sprint1.py           # ejecución completa del Sprint 1
+│   ├── models.py            # construcción, evaluación y persistencia de modelos
+│   ├── evaluate.py          # figuras y reporte de evaluación
+│   ├── sprint1.py           # ejecución completa del Sprint 1
+│   └── sprint2.py           # ejecución completa del Sprint 2
 ├── tests/                   # pruebas automáticas (pytest)
 ├── conftest.py
 ├── requirements.txt
@@ -72,18 +77,19 @@ pip install -r requirements.txt
 ## 5. Cómo ejecutar
 
 ```bash
-# Sprint 1 completo: descarga/carga, calidad, EDA, split y pipeline
+# Sprint 1: carga, calidad, EDA, split y pipeline
 python -m src.sprint1
 
-# Forzar la descarga desde UCI (sobrescribe data/raw)
-python -m src.sprint1 --refresh
+# Sprint 2: baseline, Random Forest, comparación, figuras y modelo final
+python -m src.sprint2
 
 # Pruebas automáticas
 pytest -q
 ```
 
-El notebook `notebooks/01_laboratorio_drybean.ipynb` se ejecuta desde la raíz del
-repositorio y ya está guardado **con salidas**, como exige el entregable 1.
+Ambos notebooks se ejecutan desde la raíz del repositorio y están guardados **con
+salidas**, como exige el entregable de notebook ejecutado. El Sprint 2 requiere
+los artefactos del Sprint 1 en `data/processed/`.
 
 ## 6. Resultados del Sprint 1
 
@@ -99,47 +105,57 @@ repositorio y ya está guardado **con salidas**, como exige el entregable 1.
 | Desvío máximo de estratificación | 0,0003 |
 | Pipeline | `StandardScaler` (ajustado solo con train) |
 
-Artefactos generados:
+Artefactos: `outputs/reports/sprint1/reporte_sprint1.md`, `calidad_datos.json`,
+`resumen_sprint1.json` y 4 figuras.
 
-- `outputs/reports/sprint1/reporte_sprint1.md` - reporte CRISP-DM del sprint
-- `outputs/reports/sprint1/calidad_datos.json` y `resumen_sprint1.json`
-- `outputs/reports/sprint1/figuras/` - 4 figuras (clases, histogramas, correlación, área por clase)
+## 7. Resultados del Sprint 2
 
-Hallazgo principal: las clases están **desbalanceadas** (DERMASON 26% vs BOMBAY 3,8%),
-por lo que el Sprint 2 evaluará con **F1 macro** además de accuracy y usará
-`class_weight="balanced"` en el modelo alternativo.
+| Modelo | Accuracy | F1 macro | Balanced accuracy | Entrenamiento |
+|---|---|---|---|---|
+| Logistic Regression (baseline) | 0,9195 | 0,9306 | 0,9303 | 0,11 s |
+| Random Forest (200 árboles, balanced) | 0,9195 | 0,9310 | 0,9310 | 0,38 s |
 
-## 7. Estado del backlog (Scrum ML)
+- Ambos modelos coinciden en **96%** de las predicciones y aciertan 2.491 de 2.709 casos.
+- **Decisión CRISP-DM:** el F1 macro difiere solo 0,0004 (< 0,005), por lo que se
+  prefiere el modelo más simple y rápido: **Logistic Regression** (criterio del
+  laboratorio de priorizar F1 macro y simplicidad).
+- Errores principales: `SIRA` ↔ `DERMASON`. `BOMBAY` se clasifica sin errores.
+- Artefacto: `outputs/models/modelo_final_drybean.joblib` + `.metadata.json`.
+
+Artefactos: `outputs/reports/sprint2/reporte_sprint2.md`, `metricas_sprint2.json`,
+`comparacion_modelos.csv`, `predicciones_test.csv` y 4 figuras.
+
+## 8. Estado del backlog (Scrum ML)
 
 | ID | Historia / tarea | Responsable | Sprint | Estado |
 |---|---|---|---|---|
 | PB-01 | Descargar y cargar el dataset | Data Engineer | 1 | ✅ Hecho |
-| PB-02 | Analizar calidad de datos (nulos, duplicados, clases) | Data Analyst | 1 | ✅ Hecho |
-| - | Split train/test estratificado + pipeline | ML Engineer | 1 | ✅ Hecho |
-| PB-03 | Baseline `LogisticRegression` | ML Engineer | 2 | ⏳ Por hacer |
-| PB-04 | `RandomForestClassifier` balanceado | ML Engineer | 2 | ⏳ Por hacer |
-| PB-05 | Comparación de métricas + matriz de confusión | Equipo | 2 | ⏳ Por hacer |
+| PB-02 | Analizar calidad de datos | Data Analyst | 1 | ✅ Hecho |
+| - | Split estratificado + pipeline | ML Engineer | 1 | ✅ Hecho |
+| PB-03 | Baseline `LogisticRegression` | ML Engineer | 2 | ✅ Hecho |
+| PB-04 | `RandomForestClassifier` balanceado | ML Engineer | 2 | ✅ Hecho |
+| PB-05 | Comparación de métricas + matriz de confusión | Equipo | 2 | ✅ Hecho |
 | PB-06 | README y documentación final | Scrum Master | 3 | 🟡 En progreso |
 
-**Definition of Done del Sprint 1:** cumplido (dataset reproducible, calidad
-reportada, split reproducible, pipeline listo, pruebas en verde).
+**Definition of Done del Sprint 1:** cumplido.
+**Definition of Done del Sprint 2:** cumplido (dos modelos, métricas comparadas,
+matriz de confusión, importancia de variables y modelo guardado).
 
-## 8. Reproducibilidad
+## 9. Reproducibilidad
 
 - Semilla fija `RANDOM_STATE = 42` y `TEST_SIZE = 0.2` en `src/config.py`.
 - El dataset se versiona con hash SHA-256 en `data/raw/dry_bean_metadata.json`.
-- Toda la lógica vive en `src/`; el notebook solo la invoca y la explica.
-- Las pruebas (`pytest`) verifican forma del dataset, limpieza, estratificación,
-  reproducibilidad del split y del pipeline.
+- Toda la lógica vive en `src/`; los notebooks solo la invocan y la explican.
+- Las pruebas (`pytest`, 17 en total) verifican datos, split, pipeline, modelos,
+  métricas, importancia de variables y persistencia.
 
-## 9. Roadmap
+## 10. Roadmap
 
-- **Sprint 2:** baseline + Random Forest, comparación de métricas, matriz de
-  confusión, importancia de variables.
-- **Sprint 3:** guardado del modelo (`joblib`), demo de predicción, reporte final
-  de 7 secciones y evidencias Scrum (daily, retrospectiva, tablero).
+- **Sprint 3:** cargar el modelo guardado, función de predicción reutilizable,
+  demo local, reporte final de 7 secciones y evidencias Scrum (daily, retrospectiva,
+  tablero).
 
-## 10. Créditos
+## 11. Créditos
 
 Laboratorio diseñado por Juan Manuel Núñez Velasco. Dataset: Dry Bean Dataset,
 UCI Machine Learning Repository.
