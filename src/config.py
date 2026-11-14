@@ -25,6 +25,8 @@ OUTPUTS_MODELS_DIR = OUTPUTS_DIR / "models"
 OUTPUTS_REPORTS_DIR = OUTPUTS_DIR / "reports"
 SPRINT1_REPORTS_DIR = OUTPUTS_REPORTS_DIR / "sprint1"
 SPRINT1_FIGURES_DIR = SPRINT1_REPORTS_DIR / "figuras"
+SPRINT2_REPORTS_DIR = OUTPUTS_REPORTS_DIR / "sprint2"
+SPRINT2_FIGURES_DIR = SPRINT2_REPORTS_DIR / "figuras"
 
 for _directory in (
     DATA_RAW_DIR,
@@ -33,6 +35,8 @@ for _directory in (
     OUTPUTS_REPORTS_DIR,
     SPRINT1_REPORTS_DIR,
     SPRINT1_FIGURES_DIR,
+    SPRINT2_REPORTS_DIR,
+    SPRINT2_FIGURES_DIR,
 ):
     _directory.mkdir(parents=True, exist_ok=True)
 
@@ -57,3 +61,6 @@ X_TRAIN_PATH = DATA_PROCESSED_DIR / "X_train.csv"
 X_TEST_PATH = DATA_PROCESSED_DIR / "X_test.csv"
 Y_TRAIN_PATH = DATA_PROCESSED_DIR / "y_train.csv"
 Y_TEST_PATH = DATA_PROCESSED_DIR / "y_test.csv"
+
+# Artefactos del modelo final (Sprint 2 / Sprint 3)
+FINAL_MODEL_PATH = OUTPUTS_MODELS_DIR / "modelo_final_drybean.joblib"
