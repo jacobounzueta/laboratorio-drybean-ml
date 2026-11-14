@@ -94,6 +94,9 @@ python -m src.sprint2
 # Sprint 3: carga del modelo, verificación de integridad y demo
 python -m src.sprint3
 
+# Despliegue web interactivo (Streamlit)
+streamlit run app.py
+
 # Pruebas automáticas
 pytest -q
 ```
