@@ -165,6 +165,10 @@ La entrada se valida antes de predecir: variables faltantes, variables
 desconocidas, nulos, valores no numéricos y entrada vacía lanzan
 `DatosInvalidosError` con un mensaje que dice qué corregir.
 
+El `.joblib` y sus metadatos **están versionados en Git** (~1,15 MB), así que el
+modelo se puede cargar desde un clon limpio sin reentrenar. `data/processed/`
+sigue siendo derivado y se regenera con `python -m src.sprint1`.
+
 Artefactos: `outputs/reports/sprint3/reporte_sprint3.md`,
 `demo_predicciones.csv`, `verificacion_modelo.json` y el notebook 03.
 
@@ -201,6 +205,8 @@ de predicción con validación de entrada, demo, reporte final y evidencias Scru
 
 - Semilla fija `RANDOM_STATE = 42` y `TEST_SIZE = 0.2` en `src/config.py`.
 - El dataset se versiona con hash SHA-256 en `data/raw/dry_bean_metadata.json`.
+- El modelo final (`outputs/models/modelo_final_drybean.joblib`) y sus metadatos
+  se versionan, de modo que se puede cargar desde un clon limpio sin reentrenar.
 - Toda la lógica vive en `src/`; los notebooks solo la invocan y la explican.
 - El artefacto guarda sus metadatos: modelo, métricas, variables, clases, filas de
   train/test, semilla y versión de scikit-learn.

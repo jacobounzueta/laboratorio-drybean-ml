@@ -164,6 +164,9 @@ dejar el artefacto listo para una demo reproducible.
 
 {dataframe_to_markdown(models_table)}
 
+El `.joblib` y sus metadatos están versionados en Git (~1,15 MB), así que el
+modelo se puede cargar desde un clon limpio sin reentrenar.
+
 ## 2. Verificación de integridad
 
 Se volvió a predecir el conjunto de prueba con el modelo cargado desde disco:

@@ -24,6 +24,9 @@ dejar el artefacto listo para una demo reproducible.
 | 2 | F1 macro (test) | 0.9315 |
 | 3 | F1 macro CV 5-fold | 0.9429 ± 0.0032 |
 
+El `.joblib` y sus metadatos están versionados en Git (~1,15 MB), así que el
+modelo se puede cargar desde un clon limpio sin reentrenar.
+
 ## 2. Verificación de integridad
 
 Se volvió a predecir el conjunto de prueba con el modelo cargado desde disco:

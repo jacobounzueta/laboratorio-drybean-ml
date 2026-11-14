@@ -286,8 +286,8 @@ figuras.
 
 | Elemento | Ruta |
 |---|---|
-| Modelo serializado | `outputs/models/modelo_final_drybean.joblib` (~1,15 MB) |
-| Metadatos de trazabilidad | `outputs/models/modelo_final_drybean.metadata.json` |
+| Modelo serializado | `outputs/models/modelo_final_drybean.joblib` (~1,15 MB, versionado en Git) |
+| Metadatos de trazabilidad | `outputs/models/modelo_final_drybean.metadata.json` (versionado en Git) |
 | Funciones de inferencia | `src/deploy.py` |
 | Verificación automática | `src/sprint3.py` → `outputs/reports/sprint3/` |
 
