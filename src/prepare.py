@@ -140,10 +140,10 @@ def save_processed_data(
     y_test: pd.Series,
 ) -> dict[str, str]:
     """Guarda los conjuntos procesados para reutilizarlos en el Sprint 2."""
-    X_train.to_csv(config.X_TRAIN_PATH, index=False)
-    X_test.to_csv(config.X_TEST_PATH, index=False)
-    y_train.to_csv(config.Y_TRAIN_PATH, index=False)
-    y_test.to_csv(config.Y_TEST_PATH, index=False)
+    X_train.to_csv(config.X_TRAIN_PATH, index=False, lineterminator="\n")
+    X_test.to_csv(config.X_TEST_PATH, index=False, lineterminator="\n")
+    y_train.to_csv(config.Y_TRAIN_PATH, index=False, lineterminator="\n")
+    y_test.to_csv(config.Y_TEST_PATH, index=False, lineterminator="\n")
     return {
         "X_train": str(config.X_TRAIN_PATH),
         "X_test": str(config.X_TEST_PATH),

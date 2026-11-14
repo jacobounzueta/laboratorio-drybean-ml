@@ -85,7 +85,9 @@ def run_sprint1(refresh: bool = False) -> dict[str, Any]:
     _log("6/6", f"Reporte: {report_path}")
 
     (config.SPRINT1_REPORTS_DIR / "calidad_datos.json").write_text(
-        json.dumps(quality, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(quality, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+        newline="\n",
     )
     (config.SPRINT1_REPORTS_DIR / "resumen_sprint1.json").write_text(
         json.dumps(
@@ -100,6 +102,7 @@ def run_sprint1(refresh: bool = False) -> dict[str, Any]:
             ensure_ascii=False,
         ),
         encoding="utf-8",
+        newline="\n",
     )
     _log("6/6", f"Artefactos JSON: {config.SPRINT1_REPORTS_DIR}")
 

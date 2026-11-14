@@ -303,9 +303,15 @@ def run_sprint3() -> dict[str, Any]:
 
     # ------------------------------------------------------------------ 5/6
     _log("5/6", "Guardando demo y verificación...")
-    demo.to_csv(config.SPRINT3_REPORTS_DIR / "demo_predicciones.csv", index=False)
+    demo.to_csv(
+        config.SPRINT3_REPORTS_DIR / "demo_predicciones.csv",
+        index=False,
+        lineterminator="\n",
+    )
     (config.SPRINT3_REPORTS_DIR / "verificacion_modelo.json").write_text(
-        json.dumps(verification, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(verification, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+        newline="\n",
     )
 
     # ------------------------------------------------------------------ 6/6
@@ -316,7 +322,7 @@ def run_sprint3() -> dict[str, Any]:
     }
     markdown = build_markdown(metadata, verification, demo, dict_demo, artifact_paths)
     report_path = config.SPRINT3_REPORTS_DIR / "reporte_sprint3.md"
-    report_path.write_text(markdown, encoding="utf-8")
+    report_path.write_text(markdown, encoding="utf-8", newline="\n")
     _log("6/6", f"Reporte: {report_path}")
 
     return {

@@ -298,7 +298,9 @@ def save_model(
         **(metadata or {}),
     }
     metadata_path.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+        newline="\n",
     )
     return {"model": str(path), "metadata": str(metadata_path)}
 

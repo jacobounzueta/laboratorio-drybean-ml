@@ -142,7 +142,9 @@ def run_sprint2() -> dict[str, Any]:
 
     # ------------------------------------------------------------------ 8/8
     _log("8/8", "Guardando métricas, predicciones y reporte...")
-    comparison.to_csv(config.SPRINT2_REPORTS_DIR / "comparacion_modelos.csv")
+    comparison.to_csv(
+        config.SPRINT2_REPORTS_DIR / "comparacion_modelos.csv", lineterminator="\n"
+    )
 
     predictions_df = X_test.copy()
     predictions_df["real_class"] = y_test.to_numpy()
@@ -151,7 +153,9 @@ def run_sprint2() -> dict[str, Any]:
         predictions_df["real_class"] == predictions_df["predicted_class"]
     )
     predictions_df.to_csv(
-        config.SPRINT2_REPORTS_DIR / "predicciones_test.csv", index=False
+        config.SPRINT2_REPORTS_DIR / "predicciones_test.csv",
+        index=False,
+        lineterminator="\n",
     )
 
     metrics_payload = {
@@ -181,7 +185,9 @@ def run_sprint2() -> dict[str, Any]:
         "artifacts": artifact,
     }
     (config.SPRINT2_REPORTS_DIR / "metricas_sprint2.json").write_text(
-        json.dumps(metrics_payload, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(metrics_payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+        newline="\n",
     )
 
     markdown = evaluate.build_sprint2_markdown(

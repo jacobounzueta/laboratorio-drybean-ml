@@ -54,7 +54,7 @@ def load_raw_data(force_download: bool = False) -> pd.DataFrame:
         return df
 
     df = fetch_dry_bean_from_uci()
-    df.to_csv(config.RAW_DATASET_PATH, index=False)
+    df.to_csv(config.RAW_DATASET_PATH, index=False, lineterminator="\n")
 
     metadata = {
         "dataset": "Dry Bean Dataset",
@@ -66,8 +66,11 @@ def load_raw_data(force_download: bool = False) -> pd.DataFrame:
         "target_column": config.TARGET_COLUMN,
         "classes": sorted(df[config.TARGET_COLUMN].astype(str).unique().tolist()),
         "sha256": _sha256(config.RAW_DATASET_PATH),
+        "sha256_scope": "contenido del archivo versionado en Git (finales de linea LF)",
     }
     config.RAW_METADATA_PATH.write_text(
-        json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(metadata, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+        newline="\n",
     )
     return df

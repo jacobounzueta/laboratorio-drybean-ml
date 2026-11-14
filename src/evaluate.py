@@ -421,5 +421,5 @@ variedades, no una única medida.
 
 
 def save_report(markdown: str, path: Path) -> Path:
-    path.write_text(markdown, encoding="utf-8")
+    path.write_text(markdown, encoding="utf-8", newline="\n")
     return path
