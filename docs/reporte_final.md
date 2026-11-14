@@ -339,6 +339,37 @@ coinciden exactamente con lo guardado. Después predice un lote y un grano nuevo
 guarda `outputs/reports/sprint3/reporte_sprint3.md`, `demo_predicciones.csv` y
 `verificacion_modelo.json`.
 
+### 6.1 Interfaz web interactiva (Streamlit)
+
+Extensión posterior al cierre de los sprints: `app.py` expone el mismo modelo a
+través de una interfaz web, sin duplicar lógica de predicción.
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+- **Predicción individual:** 16 campos editables, presets con una muestra real de
+  cada variedad, probabilidad de las 7 clases y una simulación geométrica que se
+  actualiza en vivo.
+- **Predicción por lotes:** carga de un CSV con las 16 columnas, vista previa,
+  conteo por variedad predicha y descarga de resultados.
+- **Reutilización:** la app llama a `src.deploy` (`load_final_model`,
+  `predict_beans`, `to_feature_frame`), por lo que hereda el contrato de entrada y
+  sus mensajes de error. La validación del CSV es la misma que la de la consola.
+- **Trazabilidad en pantalla:** la barra lateral muestra modelo, tipo, fecha,
+  accuracy, F1 macro, F1 de validación cruzada, clases y tamaño de train/test.
+
+![Simulación geométrica de un grano](figuras/simulacion_geometrica.png)
+
+**Alcance de la simulación.** Es una visualización didáctica construida con
+`MajorAxisLength`, `MinorAxisLength`, `EquivDiameter`, `Solidity` y `Roundness`:
+dibuja la caja envolvente, el círculo de diámetro equivalente y un contorno
+deformado. **No alimenta al modelo, no genera imágenes reales y no valida que las
+16 medidas sean geométricamente coherentes entre sí.** La predicción depende solo
+de los 16 valores del formulario; la figura ayuda a explicar qué significa cada
+medida, no a justificar el resultado.
+
 **Cómo llevarlo a producción**
 
 1. Reentrenar con `python -m src.sprint2` cuando cambien los datos o el montaje de
@@ -351,9 +382,10 @@ guarda `outputs/reports/sprint3/reporte_sprint3.md`, `demo_predicciones.csv` y
 5. Enviar a revisión humana los casos `SIRA`/`DERMASON` con probabilidad baja.
 
 **Relación con las metodologías.** Fase 6 de CRISP-DM (*Deployment*), etapa
-*Deployment* de TDSP y PB-08 en Scrum. El ciclo no se cierra del todo: en CRISP-DM
-el despliegue alimenta una nueva vuelta de comprensión del negocio, que aquí queda
-como trabajo futuro.
+*Deployment* de TDSP y PB-08 en Scrum; la interfaz web y la simulación se registran
+como extensión posterior (PB-09 y PB-10). El ciclo no se cierra del todo: en
+CRISP-DM el despliegue alimenta una nueva vuelta de comprensión del negocio, que
+aquí queda como trabajo futuro.
 
 ---
 
@@ -391,6 +423,8 @@ como trabajo futuro.
 | Sin calibración de probabilidades | Las probabilidades no son frecuencias fiables | Se usan solo para ordenar casos dudosos |
 | Sin datos nuevos post-entrenamiento | No se midió degradación (*drift*) | Recomendación de monitoreo de distribución |
 | Equipo de dos personas en tres sprints | No hubo tiempo para *tuning* exhaustivo ni SHAP | Se priorizó el ciclo completo sobre la optimización fina |
+| La simulación geométrica es didáctica | Puede confundirse con el modelo o con una imagen real | Se advierte en la app y en este reporte: no participa en la predicción |
+| La app no valida coherencia geométrica | Se pueden introducir 16 medidas incompatibles entre sí | El contrato valida forma (16 columnas numéricas), no consistencia física |
 
 ### 7.3 Trabajo futuro
 
@@ -402,8 +436,10 @@ como trabajo futuro.
    interpretable como confianza operativa.
 4. **Explicabilidad local**: SHAP por predicción, para que el operario vea qué
    medida inclinó la decisión.
-5. **Servicio de inferencia**: endpoint con validación de esquema (p. ej.
-   FastAPI + Pydantic) y registro de predicciones para auditoría.
+5. **API de inferencia**: servicio HTTP con validación de esquema (p. ej.
+   FastAPI + Pydantic) y registro de predicciones para auditoría. La interfaz
+   Streamlit ya cubre la demo y el uso manual; falta la integración con el sistema
+   de la planta.
 6. **Automatización del reentrenamiento**: pipeline que reentrene, valide contra
    un umbral mínimo de F1 macro y solo publique si mejora.
 
@@ -429,6 +465,7 @@ como trabajo futuro.
 | 4. Modelado | Modeling | PB-03, PB-04, PB-07 | `src/models.py`, `src/sprint2.py` |
 | 5. Evaluación | Modeling / Evaluation | PB-05, sprint review 2 | `outputs/reports/sprint2/` |
 | 6. Despliegue | Deployment | PB-08, sprint review 3 | `src/deploy.py`, `outputs/reports/sprint3/` |
+| Extensión posterior | Deployment | PB-09, PB-10 | `app.py`, `docs/figuras/simulacion_geometrica.png` |
 | Cierre y aprendizaje | — | Retrospectivas | `docs/sprints.md` |
 
 ## Anexo B. Cómo reproducir todo
@@ -437,11 +474,13 @@ como trabajo futuro.
 python -m src.sprint1    # datos, calidad, EDA, split
 python -m src.sprint2    # tres modelos, CV, evaluación, artefacto
 python -m src.sprint3    # carga, verificación y demo de despliegue
-pytest -q                # 40 pruebas
+streamlit run app.py     # interfaz web (requiere pip install -r requirements.txt)
+pytest -q                # 44 pruebas
 ```
 
 Los tres notebooks (`notebooks/01`, `02`, `03`) están guardados con sus salidas y
-se ejecutan en orden desde la raíz del repositorio.
+se ejecutan en orden desde la raíz del repositorio. La app web necesita el modelo
+versionado; los presets por clase, además, `data/processed/`.
 
 ## Anexo C. Glosario
 

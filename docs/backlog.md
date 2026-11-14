@@ -121,7 +121,7 @@ y el EDA son actividades cortas con el dataset ya provisto.
 - [x] El código vive en `src/` (no solo en el notebook).
 - [x] El notebook que la explica está ejecutado y guardado con salidas.
 - [x] Hay al menos una prueba automática que la cubre.
-- [x] `pytest -q` pasa completo (40 pruebas al cierre).
+- [x] `pytest -q` pasa completo (44 pruebas al cierre).
 - [x] El resultado quedó escrito en un reporte dentro de `outputs/reports/`.
 - [x] La decisión o el hallazgo está documentado con su justificación.
 - [x] Los artefactos generados están versionados o correctamente ignorados.
@@ -150,3 +150,29 @@ y el EDA son actividades cortas con el dataset ya provisto.
 | Confusión `SIRA`/`DERMASON` en producción | Alta | Medio | Revisión humana con probabilidad baja |
 | El dataset no generaliza a otros lotes | Media | Alto | Validar con datos nuevos antes de automatizar al 100% |
 | Pérdida de reproducibilidad por actualización de librerías | Media | Medio | Semilla fija, `requirements.txt` y versión en metadatos |
+| La simulación geométrica se interpreta como parte del modelo | Media | Medio | Se advierte en la app, en el README y en el reporte final que es didáctica y no participa en la predicción |
+| La app recibe medidas incoherentes entre sí | Media | Bajo | El contrato valida forma y tipo, no consistencia física; se documenta como limitación |
+
+---
+
+## 8. Extensiones posteriores al cierre
+
+Trabajo hecho después del Sprint 3, sin alterar la cronología de los tres sprints
+ni sus actas. Se registra aquí para que el backlog refleje el producto real.
+
+| ID | Historia | Criterio de aceptación | Pts | Estado | Autor |
+|---|---|---|---|---|---|
+| PB-09 | Como usuario quiero predecir la variedad desde una interfaz web, sin escribir código | App Streamlit con pestaña individual y por lotes, presets por clase, descarga de resultados y barra lateral con la trazabilidad del modelo | 5 | ✅ Done | Rommel |
+| PB-10 | Como usuario quiero ver una representación de la geometría del grano mientras ajusto las medidas | Figura 2D que se actualiza en vivo con ejes mayor/menor, caja envolvente, círculo de diámetro equivalente y contorno afectado por `Solidity` y `Roundness`; prueba automática de la figura | 3 | ✅ Done | Rommel |
+
+**Evidencia:** `app.py`, `tests/test_app.py`, `docs/figuras/simulacion_geometrica.png`
+y el comando `streamlit run app.py` documentado en el README.
+
+**Deuda asumida en la extensión**
+
+1. La simulación usa 5 de las 16 variables; no es una reconstrucción fiel del grano.
+2. No se valida coherencia geométrica entre las medidas (`Area` vs. ejes, por ejemplo).
+3. Los presets por clase dependen de `data/processed/`; sin esa carpeta la app sigue
+   funcionando con un único ejemplo por defecto.
+4. La app no tiene autenticación ni registro de predicciones: es una demo, no un
+   servicio de producción.

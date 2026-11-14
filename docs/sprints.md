@@ -161,7 +161,7 @@ documentado, con el ciclo CRISP-DM cerrado.
 - `src/deploy.py` con `load_final_model`, `predict_bean_class` y `predict_beans`,
   más validación de entrada (faltantes, desconocidas, nulos, no numéricos, vacío).
 - Notebook `03_sprint3_despliegue.ipynb` ejecutado.
-- 40 pruebas en verde.
+- 40 pruebas en verde (44 tras la extensión web).
 - Reporte final de 7 secciones, backlog y este documento.
 
 **Resultados presentados**
@@ -226,3 +226,34 @@ documentado, con el ciclo CRISP-DM cerrado.
    quedó ninguna acción abierta al cierre.
 3. **La Definition of Done evitó entregables a medias**: cada historia cerrada
    tiene código, prueba, reporte y notebook ejecutado.
+
+---
+
+## Extensión posterior al cierre: aplicación web
+
+Después del Sprint 3, Rommel añadió una interfaz Streamlit (`app.py`) y una
+simulación geométrica en vivo (PB-09 y PB-10). **No es un cuarto sprint:** no hubo
+planning ni tablero propios, y se documenta como extensión para no falsear la
+cronología de las actas.
+
+**Qué se demostró**
+
+- Predicción individual con presets por clase y probabilidad de las 7 variedades.
+- Predicción por lotes desde un CSV, con conteo por variedad y descarga de resultados.
+- Simulación de la silueta del grano a partir de 5 medidas, actualizada en vivo.
+- 44 pruebas en verde en el proyecto; la app aporta 3 (dos de humo y una de la figura).
+
+**Decisiones**
+
+1. La app reutiliza `src.deploy`; no duplica lógica ni relaja las validaciones.
+2. La simulación se declara **didáctica**: no participa en la predicción ni valida
+   coherencia geométrica.
+3. Los presets por clase dependen de `data/processed/`; sin esa carpeta la app
+   funciona con un ejemplo por defecto.
+
+**Lección**
+
+La interfaz cambió la forma de presentar el proyecto: para una audiencia no
+técnica, mover los ejes y ver la silueta comunica mejor que una tabla de métricas.
+Pero una demo visual sin advertencias puede sobreprometer; por eso la simulación
+se explica como lo que es.

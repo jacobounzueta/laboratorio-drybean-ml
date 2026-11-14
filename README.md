@@ -46,7 +46,8 @@ laboratorio_drybean_ml/
 ├── docs/
 │   ├── reporte_final.md     # reporte CRISP-DM de 7 secciones
 │   ├── backlog.md           # product backlog, sprint backlogs y DoD
-│   └── sprints.md           # tablero, sprint reviews y retrospectivas
+│   ├── sprints.md           # tablero, sprint reviews y retrospectivas
+│   └── figuras/             # evidencia visual (simulación geométrica)
 ├── src/                     # código reutilizable
 │   ├── config.py            # rutas, semilla y parámetros
 │   ├── data.py              # descarga y caché del dataset
@@ -58,7 +59,12 @@ laboratorio_drybean_ml/
 │   ├── sprint1.py           # ejecución completa del Sprint 1
 │   ├── sprint2.py           # ejecución completa del Sprint 2
 │   └── sprint3.py           # ejecución completa del Sprint 3
+├── app.py                   # interfaz web interactiva (Streamlit)
 ├── tests/                   # pruebas automáticas (pytest)
+│   ├── test_sprint1.py
+│   ├── test_sprint2.py
+│   ├── test_sprint3.py
+│   └── test_app.py
 ├── conftest.py
 ├── requirements.txt
 └── README.md
@@ -105,6 +111,9 @@ Los tres notebooks se ejecutan desde la raíz del repositorio y están guardados
 **con salidas**, como exige el entregable de notebook ejecutado. Cada sprint
 requiere los artefactos del anterior (`data/processed/` para el Sprint 2 y
 `outputs/models/` para el Sprint 3).
+
+La app web necesita Streamlit (incluido en `requirements.txt`) y el modelo
+versionado. Si instalas desde cero, ejecuta antes `pip install -r requirements.txt`.
 
 ## 6. Resultados del Sprint 1
 
@@ -175,7 +184,38 @@ sigue siendo derivado y se regenera con `python -m src.sprint1`.
 Artefactos: `outputs/reports/sprint3/reporte_sprint3.md`,
 `demo_predicciones.csv`, `verificacion_modelo.json` y el notebook 03.
 
-## 9. Documentación
+## 9. Aplicación web (Streamlit)
+
+Extensión posterior al cierre de los sprints: una interfaz para usar el modelo sin
+escribir código.
+
+```bash
+pip install -r requirements.txt   # incluye streamlit==1.67.0
+streamlit run app.py
+```
+
+Se abre en <http://localhost:8501>. Tiene dos pestañas:
+
+| Pestaña | Qué hace | Artefactos que necesita |
+|---|---|---|
+| Predicción individual | 16 campos editables, presets por clase, simulación geométrica en vivo y probabilidad de las 7 clases | El `.joblib` versionado; los presets requieren `data/processed/` |
+| Predicción por lotes | Sube un CSV con las 16 columnas y descarga predicciones con el conteo por variedad | El `.joblib` |
+
+La app no duplica lógica: usa `src.deploy` (`load_final_model`, `predict_beans`,
+`to_feature_frame`), así que el contrato de entrada y sus validaciones son los
+mismos del despliegue por consola.
+
+**Sobre la simulación geométrica.** Dibuja una silueta a partir de
+`MajorAxisLength`, `MinorAxisLength`, `EquivDiameter`, `Solidity` y `Roundness`,
+junto con la caja envolvente y el círculo de diámetro equivalente. Es
+**didáctica**: no alimenta al modelo ni valida coherencia geométrica entre las 16
+medidas; la predicción siempre sale de los 16 valores del formulario. El cambio de
+la figura se apoya en `st.button` (no en un formulario), de modo que cada ajuste
+reejecuta la app y actualiza el dibujo.
+
+![Simulación geométrica](docs/figuras/simulacion_geometrica.png)
+
+## 10. Documentación
 
 - [`docs/reporte_final.md`](docs/reporte_final.md): reporte CRISP-DM de 7 secciones,
   con trazabilidad a TDSP y Scrum y las evidencias de cada fase.
@@ -184,7 +224,7 @@ Artefactos: `outputs/reports/sprint3/reporte_sprint3.md`,
 - [`docs/sprints.md`](docs/sprints.md): tablero por sprint, sprint reviews,
   retrospectivas y acciones de mejora.
 
-## 10. Estado del backlog (Scrum ML)
+## 11. Estado del backlog (Scrum ML)
 
 | ID | Historia / tarea | Responsable | Sprint | Estado |
 |---|---|---|---|---|
@@ -197,6 +237,8 @@ Artefactos: `outputs/reports/sprint3/reporte_sprint3.md`,
 | PB-07 | Tercer modelo (HGB) + validación cruzada | ML Engineer | 2 | ✅ Hecho |
 | PB-08 | Despliegue y función de predicción | ML Engineer | 3 | ✅ Hecho |
 | PB-06 | README y documentación final | Scrum Master | 3 | ✅ Hecho |
+| PB-09 | Interfaz web de predicción (Streamlit) | ML Engineer | Ext. | ✅ Hecho |
+| PB-10 | Simulación geométrica en vivo | ML Engineer | Ext. | ✅ Hecho |
 
 **Definition of Done del Sprint 1:** cumplido.
 **Definition of Done del Sprint 2:** cumplido (tres modelos, métricas comparadas,
@@ -204,7 +246,11 @@ validación cruzada, matriz de confusión, importancia de variables y modelo gua
 **Definition of Done del Sprint 3:** cumplido (modelo cargado y verificado, función
 de predicción con validación de entrada, demo, reporte final y evidencias Scrum).
 
-## 11. Reproducibilidad
+Las filas **Ext.** son la extensión posterior al cierre: se documentan en
+[`docs/backlog.md`](docs/backlog.md) y [`docs/sprints.md`](docs/sprints.md) sin
+alterar la cronología de los tres sprints.
+
+## 12. Reproducibilidad
 
 - Semilla fija `RANDOM_STATE = 42` y `TEST_SIZE = 0.2` en `src/config.py`.
 - El dataset se versiona con hash SHA-256 en `data/raw/dry_bean_metadata.json`.
@@ -213,19 +259,20 @@ de predicción con validación de entrada, demo, reporte final y evidencias Scru
 - Toda la lógica vive en `src/`; los notebooks solo la invocan y la explican.
 - El artefacto guarda sus metadatos: modelo, métricas, variables, clases, filas de
   train/test, semilla y versión de scikit-learn.
-- Las pruebas (`pytest`, 40 en total) verifican datos, split, pipeline, modelos,
+- Las pruebas (`pytest`, 44 en total) verifican datos, split, pipeline, modelos,
   validación cruzada, métricas, importancia de variables, persistencia, contrato
-  de entrada y verificación del artefacto desplegado.
+  de entrada, verificación del artefacto desplegado y la interfaz web.
 
-## 12. Trabajo futuro
+## 13. Trabajo futuro
 
 1. Validar con granos de otros lotes y equipos de captura para medir degradación.
 2. Incorporar la matriz de costos del negocio y calibrar probabilidades.
 3. Explicabilidad local (SHAP) por predicción.
-4. Endpoint de inferencia con validación de esquema y registro de predicciones.
+4. API HTTP con validación de esquema y registro de predicciones, para integrar la
+   app con el sistema de la planta (la interfaz Streamlit ya cubre la demo).
 5. Reentrenamiento automatizado que solo publique si mejora el F1 macro.
 
-## 13. Créditos
+## 14. Créditos
 
 Laboratorio diseñado por Juan Manuel Núñez Velasco. Dataset: Dry Bean Dataset,
 UCI Machine Learning Repository.
