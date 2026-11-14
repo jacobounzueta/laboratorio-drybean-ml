@@ -27,6 +27,7 @@ SPRINT1_REPORTS_DIR = OUTPUTS_REPORTS_DIR / "sprint1"
 SPRINT1_FIGURES_DIR = SPRINT1_REPORTS_DIR / "figuras"
 SPRINT2_REPORTS_DIR = OUTPUTS_REPORTS_DIR / "sprint2"
 SPRINT2_FIGURES_DIR = SPRINT2_REPORTS_DIR / "figuras"
+SPRINT3_REPORTS_DIR = OUTPUTS_REPORTS_DIR / "sprint3"
 
 for _directory in (
     DATA_RAW_DIR,
@@ -37,6 +38,7 @@ for _directory in (
     SPRINT1_FIGURES_DIR,
     SPRINT2_REPORTS_DIR,
     SPRINT2_FIGURES_DIR,
+    SPRINT3_REPORTS_DIR,
 ):
     _directory.mkdir(parents=True, exist_ok=True)
 
