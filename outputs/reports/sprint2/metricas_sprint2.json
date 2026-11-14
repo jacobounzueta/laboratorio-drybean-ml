@@ -1,0 +1,262 @@
+{
+  "random_state": 42,
+  "test_size": 0.2,
+  "prediction_agreement": 0.9605,
+  "models": {
+    "baseline": {
+      "metrics": {
+        "accuracy": 0.9195275009228497,
+        "balanced_accuracy": 0.9303201599975058,
+        "f1_macro": 0.9305508722243493,
+        "f1_weighted": 0.9196670651405702,
+        "precision_macro": 0.9310853526888828,
+        "recall_macro": 0.9303201599975058,
+        "train_seconds": 0.104,
+        "predict_seconds": 0.001
+      },
+      "per_class": {
+        "BARBUNYA": {
+          "precision": 0.9255,
+          "recall": 0.8906,
+          "f1-score": 0.9077,
+          "support": 265.0
+        },
+        "BOMBAY": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 104.0
+        },
+        "CALI": {
+          "precision": 0.911,
+          "recall": 0.9417,
+          "f1-score": 0.9261,
+          "support": 326.0
+        },
+        "DERMASON": {
+          "precision": 0.9265,
+          "recall": 0.9069,
+          "f1-score": 0.9166,
+          "support": 709.0
+        },
+        "HOROZ": {
+          "precision": 0.9643,
+          "recall": 0.9435,
+          "f1-score": 0.9538,
+          "support": 372.0
+        },
+        "SEKER": {
+          "precision": 0.9319,
+          "recall": 0.9433,
+          "f1-score": 0.9376,
+          "support": 406.0
+        },
+        "SIRA": {
+          "precision": 0.8585,
+          "recall": 0.8861,
+          "f1-score": 0.8721,
+          "support": 527.0
+        },
+        "macro avg": {
+          "precision": 0.9311,
+          "recall": 0.9303,
+          "f1-score": 0.9306,
+          "support": 2709.0
+        },
+        "weighted avg": {
+          "precision": 0.9201,
+          "recall": 0.9195,
+          "f1-score": 0.9197,
+          "support": 2709.0
+        }
+      },
+      "top_confusions": [
+        {
+          "real": "DERMASON",
+          "predicho": "SIRA",
+          "casos": 53,
+          "tasa": 0.0748
+        },
+        {
+          "real": "SIRA",
+          "predicho": "DERMASON",
+          "casos": 41,
+          "tasa": 0.0778
+        },
+        {
+          "real": "BARBUNYA",
+          "predicho": "CALI",
+          "casos": 18,
+          "tasa": 0.0679
+        }
+      ]
+    },
+    "forest": {
+      "metrics": {
+        "accuracy": 0.9195275009228497,
+        "balanced_accuracy": 0.9309804133206397,
+        "f1_macro": 0.930983998605991,
+        "f1_weighted": 0.9195068744012597,
+        "precision_macro": 0.9311719219150473,
+        "recall_macro": 0.9309804133206397,
+        "train_seconds": 0.373,
+        "predict_seconds": 0.037
+      },
+      "per_class": {
+        "BARBUNYA": {
+          "precision": 0.9225,
+          "recall": 0.8981,
+          "f1-score": 0.9101,
+          "support": 265.0
+        },
+        "BOMBAY": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 104.0
+        },
+        "CALI": {
+          "precision": 0.9215,
+          "recall": 0.9356,
+          "f1-score": 0.9285,
+          "support": 326.0
+        },
+        "DERMASON": {
+          "precision": 0.9201,
+          "recall": 0.9097,
+          "f1-score": 0.9149,
+          "support": 709.0
+        },
+        "HOROZ": {
+          "precision": 0.9644,
+          "recall": 0.9462,
+          "f1-score": 0.9552,
+          "support": 372.0
+        },
+        "SEKER": {
+          "precision": 0.924,
+          "recall": 0.9581,
+          "f1-score": 0.9407,
+          "support": 406.0
+        },
+        "SIRA": {
+          "precision": 0.8658,
+          "recall": 0.8691,
+          "f1-score": 0.8674,
+          "support": 527.0
+        },
+        "macro avg": {
+          "precision": 0.9312,
+          "recall": 0.931,
+          "f1-score": 0.931,
+          "support": 2709.0
+        },
+        "weighted avg": {
+          "precision": 0.9197,
+          "recall": 0.9195,
+          "f1-score": 0.9195,
+          "support": 2709.0
+        }
+      },
+      "top_confusions": [
+        {
+          "real": "SIRA",
+          "predicho": "DERMASON",
+          "casos": 48,
+          "tasa": 0.0911
+        },
+        {
+          "real": "DERMASON",
+          "predicho": "SIRA",
+          "casos": 47,
+          "tasa": 0.0663
+        },
+        {
+          "real": "BARBUNYA",
+          "predicho": "CALI",
+          "casos": 17,
+          "tasa": 0.0642
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "baseline": {
+      "accuracy": 0.9195,
+      "f1_macro": 0.9306,
+      "f1_weighted": 0.9197,
+      "balanced_accuracy": 0.9303,
+      "precision_macro": 0.9311,
+      "recall_macro": 0.9303,
+      "train_seconds": 0.104
+    },
+    "forest": {
+      "accuracy": 0.9195,
+      "f1_macro": 0.931,
+      "f1_weighted": 0.9195,
+      "balanced_accuracy": 0.931,
+      "precision_macro": 0.9312,
+      "recall_macro": 0.931,
+      "train_seconds": 0.373
+    }
+  },
+  "selection": {
+    "selected": "baseline",
+    "f1_macro_gap": 0.0004,
+    "tolerance": 0.005,
+    "rationale": "La diferencia de F1 macro entre forest y baseline es 0.0004 (< 0.005), por lo que se prefiere el modelo mas simple y rapido: baseline.",
+    "ranking": {
+      "forest": 0.931,
+      "baseline": 0.9306
+    }
+  },
+  "feature_importance": {
+    "kind": "impureza (Gini)",
+    "top_10": [
+      {
+        "variable": "Perimeter",
+        "importancia": 0.1092
+      },
+      {
+        "variable": "ShapeFactor1",
+        "importancia": 0.1021
+      },
+      {
+        "variable": "Compactness",
+        "importancia": 0.0952
+      },
+      {
+        "variable": "ShapeFactor3",
+        "importancia": 0.0939
+      },
+      {
+        "variable": "MinorAxisLength",
+        "importancia": 0.0929
+      },
+      {
+        "variable": "EquivDiameter",
+        "importancia": 0.0667
+      },
+      {
+        "variable": "Roundness",
+        "importancia": 0.0618
+      },
+      {
+        "variable": "AspectRatio",
+        "importancia": 0.06
+      },
+      {
+        "variable": "Eccentricity",
+        "importancia": 0.0593
+      },
+      {
+        "variable": "Area",
+        "importancia": 0.0578
+      }
+    ]
+  },
+  "artifacts": {
+    "model": "C:\\Users\\Jacobo\\Documents\\GestionProyectosIA\\laboratorio_drybean_ml\\outputs\\models\\modelo_final_drybean.joblib",
+    "metadata": "C:\\Users\\Jacobo\\Documents\\GestionProyectosIA\\laboratorio_drybean_ml\\outputs\\models\\modelo_final_drybean.metadata.json"
+  }
+}
