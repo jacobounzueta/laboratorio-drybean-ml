@@ -110,20 +110,23 @@ Artefactos: `outputs/reports/sprint1/reporte_sprint1.md`, `calidad_datos.json`,
 
 ## 7. Resultados del Sprint 2
 
-| Modelo | Accuracy | F1 macro | Balanced accuracy | Entrenamiento |
-|---|---|---|---|---|
-| Logistic Regression (baseline) | 0,9195 | 0,9306 | 0,9303 | 0,11 s |
-| Random Forest (200 árboles, balanced) | 0,9195 | 0,9310 | 0,9310 | 0,38 s |
+Tres modelos sobre el mismo split, con validación cruzada 5-fold para decidir
+(el test tiene 2.709 filas: diferencias de milésimas son ruido).
 
-- Ambos modelos coinciden en **96%** de las predicciones y aciertan 2.491 de 2.709 casos.
-- **Decisión CRISP-DM:** el F1 macro difiere solo 0,0004 (< 0,005), por lo que se
-  prefiere el modelo más simple y rápido: **Logistic Regression** (criterio del
-  laboratorio de priorizar F1 macro y simplicidad).
+| Modelo | Accuracy (test) | F1 macro (test) | F1 macro CV 5-fold | Entrenamiento |
+|---|---|---|---|---|
+| Logistic Regression (baseline) | 0,9195 | 0,9306 | 0,9360 ± 0,0031 | 0,10 s |
+| Random Forest (200, balanced) | 0,9195 | 0,9310 | 0,9352 ± 0,0016 | 0,36 s |
+| **HistGradientBoosting (l2=1.0)** | 0,9195 | **0,9315** | **0,9429 ± 0,0032** | 0,43 s |
+
+- Los tres modelos coinciden en ~96% de las predicciones.
+- **Decisión CRISP-DM:** `HistGradientBoosting` supera al baseline por 0,0069 de
+  F1 macro medio en CV (gana en las 5 particiones), así que pasa a despliegue.
 - Errores principales: `SIRA` ↔ `DERMASON`. `BOMBAY` se clasifica sin errores.
 - Artefacto: `outputs/models/modelo_final_drybean.joblib` + `.metadata.json`.
 
 Artefactos: `outputs/reports/sprint2/reporte_sprint2.md`, `metricas_sprint2.json`,
-`comparacion_modelos.csv`, `predicciones_test.csv` y 4 figuras.
+`comparacion_modelos.csv`, `predicciones_test.csv` y 6 figuras.
 
 ## 8. Estado del backlog (Scrum ML)
 
@@ -135,19 +138,20 @@ Artefactos: `outputs/reports/sprint2/reporte_sprint2.md`, `metricas_sprint2.json
 | PB-03 | Baseline `LogisticRegression` | ML Engineer | 2 | ✅ Hecho |
 | PB-04 | `RandomForestClassifier` balanceado | ML Engineer | 2 | ✅ Hecho |
 | PB-05 | Comparación de métricas + matriz de confusión | Equipo | 2 | ✅ Hecho |
+| - | Tercer modelo (HGB) + validación cruzada | ML Engineer | 2 | ✅ Hecho |
 | PB-06 | README y documentación final | Scrum Master | 3 | 🟡 En progreso |
 
 **Definition of Done del Sprint 1:** cumplido.
-**Definition of Done del Sprint 2:** cumplido (dos modelos, métricas comparadas,
-matriz de confusión, importancia de variables y modelo guardado).
+**Definition of Done del Sprint 2:** cumplido (tres modelos, métricas comparadas,
+validación cruzada, matriz de confusión, importancia de variables y modelo guardado).
 
 ## 9. Reproducibilidad
 
 - Semilla fija `RANDOM_STATE = 42` y `TEST_SIZE = 0.2` en `src/config.py`.
 - El dataset se versiona con hash SHA-256 en `data/raw/dry_bean_metadata.json`.
 - Toda la lógica vive en `src/`; los notebooks solo la invocan y la explican.
-- Las pruebas (`pytest`, 17 en total) verifican datos, split, pipeline, modelos,
-  métricas, importancia de variables y persistencia.
+- Las pruebas (`pytest`, 20 en total) verifican datos, split, pipeline, modelos,
+  validación cruzada, métricas, importancia de variables y persistencia.
 
 ## 10. Roadmap
 
