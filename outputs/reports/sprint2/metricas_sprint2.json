@@ -1,9 +1,9 @@
 {
   "random_state": 42,
   "test_size": 0.2,
-  "prediction_agreement": 0.9605,
+  "cv_folds": 5,
   "models": {
-    "baseline": {
+    "Logistic Regression": {
       "metrics": {
         "accuracy": 0.9195275009228497,
         "balanced_accuracy": 0.9303201599975058,
@@ -11,8 +11,21 @@
         "f1_weighted": 0.9196670651405702,
         "precision_macro": 0.9310853526888828,
         "recall_macro": 0.9303201599975058,
-        "train_seconds": 0.104,
+        "train_seconds": 0.103,
         "predict_seconds": 0.001
+      },
+      "cross_validation": {
+        "cv": 5,
+        "scores": [
+          0.9378,
+          0.9337,
+          0.9336,
+          0.9336,
+          0.9412
+        ],
+        "mean": 0.9359800075280026,
+        "std": 0.00307425815890158,
+        "seconds": 0.36
       },
       "per_class": {
         "BARBUNYA": {
@@ -91,7 +104,7 @@
         }
       ]
     },
-    "forest": {
+    "Random Forest": {
       "metrics": {
         "accuracy": 0.9195275009228497,
         "balanced_accuracy": 0.9309804133206397,
@@ -99,8 +112,21 @@
         "f1_weighted": 0.9195068744012597,
         "precision_macro": 0.9311719219150473,
         "recall_macro": 0.9309804133206397,
-        "train_seconds": 0.373,
-        "predict_seconds": 0.037
+        "train_seconds": 0.364,
+        "predict_seconds": 0.038
+      },
+      "cross_validation": {
+        "cv": 5,
+        "scores": [
+          0.9373,
+          0.9337,
+          0.9344,
+          0.9337,
+          0.9368
+        ],
+        "mean": 0.9351696983563758,
+        "std": 0.0015581095634269885,
+        "seconds": 1.98
       },
       "per_class": {
         "BARBUNYA": {
@@ -178,40 +204,170 @@
           "tasa": 0.0642
         }
       ]
+    },
+    "HistGradientBoosting": {
+      "metrics": {
+        "accuracy": 0.9195275009228497,
+        "balanced_accuracy": 0.9307024772726643,
+        "f1_macro": 0.9314609520761044,
+        "f1_weighted": 0.9195109311465418,
+        "precision_macro": 0.9323312350262005,
+        "recall_macro": 0.9307024772726643,
+        "train_seconds": 0.432,
+        "predict_seconds": 0.006
+      },
+      "cross_validation": {
+        "cv": 5,
+        "scores": [
+          0.943,
+          0.9457,
+          0.9429,
+          0.937,
+          0.9459
+        ],
+        "mean": 0.9428986627760587,
+        "std": 0.0032057239012787176,
+        "seconds": 4.15
+      },
+      "per_class": {
+        "BARBUNYA": {
+          "precision": 0.9228,
+          "recall": 0.9019,
+          "f1-score": 0.9122,
+          "support": 265.0
+        },
+        "BOMBAY": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 104.0
+        },
+        "CALI": {
+          "precision": 0.9222,
+          "recall": 0.9448,
+          "f1-score": 0.9333,
+          "support": 326.0
+        },
+        "DERMASON": {
+          "precision": 0.9067,
+          "recall": 0.9182,
+          "f1-score": 0.9124,
+          "support": 709.0
+        },
+        "HOROZ": {
+          "precision": 0.9589,
+          "recall": 0.9409,
+          "f1-score": 0.9498,
+          "support": 372.0
+        },
+        "SEKER": {
+          "precision": 0.9458,
+          "recall": 0.9458,
+          "f1-score": 0.9458,
+          "support": 406.0
+        },
+        "SIRA": {
+          "precision": 0.87,
+          "recall": 0.8634,
+          "f1-score": 0.8667,
+          "support": 527.0
+        },
+        "macro avg": {
+          "precision": 0.9323,
+          "recall": 0.9307,
+          "f1-score": 0.9315,
+          "support": 2709.0
+        },
+        "weighted avg": {
+          "precision": 0.9196,
+          "recall": 0.9195,
+          "f1-score": 0.9195,
+          "support": 2709.0
+        }
+      },
+      "top_confusions": [
+        {
+          "real": "SIRA",
+          "predicho": "DERMASON",
+          "casos": 53,
+          "tasa": 0.1006
+        },
+        {
+          "real": "DERMASON",
+          "predicho": "SIRA",
+          "casos": 47,
+          "tasa": 0.0663
+        },
+        {
+          "real": "BARBUNYA",
+          "predicho": "CALI",
+          "casos": 16,
+          "tasa": 0.0604
+        }
+      ]
     }
   },
   "comparison": {
-    "baseline": {
+    "Logistic Regression": {
       "accuracy": 0.9195,
       "f1_macro": 0.9306,
       "f1_weighted": 0.9197,
       "balanced_accuracy": 0.9303,
       "precision_macro": 0.9311,
       "recall_macro": 0.9303,
-      "train_seconds": 0.104
+      "train_seconds": 0.103,
+      "cv_f1_macro_mean": 0.936,
+      "cv_f1_macro_std": 0.0031
     },
-    "forest": {
+    "Random Forest": {
       "accuracy": 0.9195,
       "f1_macro": 0.931,
       "f1_weighted": 0.9195,
       "balanced_accuracy": 0.931,
       "precision_macro": 0.9312,
       "recall_macro": 0.931,
-      "train_seconds": 0.373
+      "train_seconds": 0.364,
+      "cv_f1_macro_mean": 0.9352,
+      "cv_f1_macro_std": 0.0016
+    },
+    "HistGradientBoosting": {
+      "accuracy": 0.9195,
+      "f1_macro": 0.9315,
+      "f1_weighted": 0.9195,
+      "balanced_accuracy": 0.9307,
+      "precision_macro": 0.9323,
+      "recall_macro": 0.9307,
+      "train_seconds": 0.432,
+      "cv_f1_macro_mean": 0.9429,
+      "cv_f1_macro_std": 0.0032
     }
   },
+  "prediction_agreement": {
+    "Logistic Regression vs Random Forest": 0.9605,
+    "Logistic Regression vs HistGradientBoosting": 0.9542,
+    "Random Forest vs HistGradientBoosting": 0.9668
+  },
   "selection": {
-    "selected": "baseline",
-    "f1_macro_gap": 0.0004,
+    "selected": "HistGradientBoosting",
+    "metric": "cv_f1_macro_mean",
+    "gap": 0.0069,
+    "f1_macro_gap": 0.0069,
     "tolerance": 0.005,
-    "rationale": "La diferencia de F1 macro entre forest y baseline es 0.0004 (< 0.005), por lo que se prefiere el modelo mas simple y rapido: baseline.",
+    "rationale": "HistGradientBoosting supera a Logistic Regression por 0.0069 de cv_f1_macro_mean, por lo que pasa a la fase de despliegue.",
     "ranking": {
-      "forest": 0.931,
-      "baseline": 0.9306
+      "HistGradientBoosting": 0.9429,
+      "Logistic Regression": 0.936,
+      "Random Forest": 0.9352
+    },
+    "test_f1_macro_ranking": {
+      "HistGradientBoosting": 0.9315,
+      "Logistic Regression": 0.9306,
+      "Random Forest": 0.931
     }
   },
   "feature_importance": {
     "kind": "impureza (Gini)",
+    "source_model": "Random Forest",
     "top_10": [
       {
         "variable": "Perimeter",
