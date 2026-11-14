@@ -1,0 +1,4 @@
+modelo,accuracy,f1_macro,f1_weighted,balanced_accuracy,precision_macro,recall_macro,train_seconds,cv_f1_macro_mean,cv_f1_macro_std
+Logistic Regression,0.9195,0.9306,0.9197,0.9303,0.9311,0.9303,0.106,0.936,0.0031
+Random Forest,0.9195,0.931,0.9195,0.931,0.9312,0.931,0.366,0.9352,0.0016
+HistGradientBoosting,0.9195,0.9315,0.9195,0.9307,0.9323,0.9307,0.431,0.9429,0.0032
