@@ -185,10 +185,11 @@ muestre también los límites reales del clasificador.
 
 {demo_table}
 
-Aciertos en la demo: **{int(demo["acierto"].sum())} de {len(demo)}**. Los errores
-incluidos son {error_pairs}: variedades de tamaño y forma parecidos donde el modelo
-predice con alta confianza y aun así se equivoca. Ese es el riesgo que hay que
-monitorear en producción.
+Aciertos en la demo: **{int(demo["acierto"].sum())} de {len(demo)}**.
+
+Errores incluidos: {error_pairs}. Son variedades de tamaño y forma parecidos
+donde el modelo predice con alta confianza y aun así se equivoca: ese es el riesgo
+que hay que monitorear en producción.
 
 ## 4. Predicción de un grano nuevo
 

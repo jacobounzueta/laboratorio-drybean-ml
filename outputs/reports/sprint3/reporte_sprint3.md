@@ -39,9 +39,9 @@ Se volvió a predecir el conjunto de prueba con el modelo cargado desde disco:
 
 ## 3. Demo de predicción
 
-Cinco casos del conjunto de prueba que los modelos nunca vieron: **tres aciertos y
-los dos primeros errores**, para que la demo muestre también los límites reales
-del clasificador.
+Cinco casos del conjunto de prueba que los modelos nunca vieron: **tres aciertos**
+y **un caso de cada una de las dos confusiones más frecuentes**, para que la demo
+muestre también los límites reales del clasificador.
 
 | muestra | clase_real | clase_predicha | probabilidad | acierto |
 |---|---|---|---|---|
@@ -51,10 +51,11 @@ del clasificador.
 | 4 | SIRA | DERMASON | 0.668 | False |
 | 5 | DERMASON | SIRA | 0.918 | False |
 
-Aciertos en la demo: **3 de 5**. Los errores
-incluidos son `SIRA` → `DERMASON` y `DERMASON` → `SIRA`: variedades de tamaño y forma parecidos donde el modelo
-predice con alta confianza y aun así se equivoca. Ese es el riesgo que hay que
-monitorear en producción.
+Aciertos en la demo: **3 de 5**.
+
+Errores incluidos: `SIRA` → `DERMASON` y `DERMASON` → `SIRA`. Son variedades de tamaño y forma parecidos
+donde el modelo predice con alta confianza y aun así se equivoca: ese es el riesgo
+que hay que monitorear en producción.
 
 ## 4. Predicción de un grano nuevo
 
