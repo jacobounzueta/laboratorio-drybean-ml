@@ -180,9 +180,6 @@ Artefactos: `outputs/reports/sprint3/reporte_sprint3.md`,
   Definition of Ready/Done, impedimentos y riesgos.
 - [`docs/sprints.md`](docs/sprints.md): tablero por sprint, sprint reviews,
   retrospectivas y acciones de mejora.
-- [`docs/presentacion.md`](docs/presentacion.md): guion del pitch de 15 minutos,
-  reparto de intervenciones entre los dos integrantes, demo en vivo y preguntas
-  probables.
 
 ## 10. Estado del backlog (Scrum ML)
 

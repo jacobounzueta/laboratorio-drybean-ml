@@ -29,3 +29,6 @@ Thumbs.db
 
 # Scratch local para pruebas en vivo (no forma parte de la entrega)
 probar_modelo.py
+
+# Guion del pitch: se mantiene local, no se publica en el repositorio
+docs/presentacion.md
